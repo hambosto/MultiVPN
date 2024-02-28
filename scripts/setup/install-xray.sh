@@ -6,7 +6,7 @@ install_essentials() {
     apt update -y && apt upgrade -y
 
     # Install essential packages
-    apt install -y socat python2 curl wget sed nano python3 jq cron bash-completion ntpdate chrony zip pwgen openssl netcat
+    apt install -y socat python2 curl wget sed nano python3 jq cron bash-completion ntpdate chrony zip unzip pwgen openssl netcat
 
     # Configure and start chrony
     timedatectl set-ntp true
@@ -39,7 +39,7 @@ install_xray_core() {
 # Function to install Trojan Go
 install_trojan_go() {
     latest_version=$(curl -s "https://api.github.com/repos/p4gefau1t/trojan-go/releases/latest" | jq -r ".tag_name")
-    trojan_go_link="https://github.com/p4gefau1t/trojan-go/releases/download/v${latest_version}/trojan-go-linux-amd64.zip"
+    trojan_go_link="https://github.com/p4gefau1t/trojan-go/releases/download/${latest_version}/trojan-go-linux-amd64.zip"
     temp_dir=$(mktemp -d)
     cd "$temp_dir"
     curl -sL "$trojan_go_link" -o trojan-go.zip
