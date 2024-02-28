@@ -47,7 +47,7 @@ update_and_upgrade() {
     sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
 
     # Install Xray dependencies
-    apt -y install libc6 libstdc++ xz-utils
+    apt -y install xz-utils
 
     # Clean up unnecessary packages
     apt autoremove -y
