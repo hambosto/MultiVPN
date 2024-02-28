@@ -34,7 +34,6 @@ install_xray_core() {
     unzip -q xray.zip && rm -rf xray.zip
     mv xray /usr/local/bin/xray
     chmod x /usr/local/bin/xray
-    cd $(pwd)
 }
 
 # Function to install Trojan Go
@@ -48,7 +47,6 @@ install_trojan_go() {
     mv trojan-go /usr/local/bin/trojan-go
     chmod +x /usr/local/bin/trojan-go
     rm -rf "$temp_dir"
-    cd $(pwd)
 }
 
 # Function to install acme.sh and obtain SSL certificate
@@ -109,8 +107,6 @@ setup_services_and_configs() {
     netfilter-persistent save >/dev/null
     netfilter-persistent reload >/dev/null
 }
-
-cd $(pwd)
 
 # Main execution starts here
 domain=$(cat /root/domain)
