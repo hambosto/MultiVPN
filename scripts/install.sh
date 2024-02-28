@@ -12,7 +12,7 @@ check_installed() {
         clear
         echo "Xray Script is already installed."
         echo "To make changes, please rebuild your VPS first!"
-        echo "Visit https://github.com/hambosto for more documentation."
+        echo "Visit https://github.com/hambosto/MultiVPN for more documentation."
     fi
 }
 
