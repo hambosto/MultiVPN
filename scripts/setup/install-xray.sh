@@ -34,6 +34,7 @@ install_xray_core() {
     unzip -q xray.zip && rm -rf xray.zip
     mv xray /usr/local/bin/xray
     chmod +x /usr/local/bin/xray
+    cd ~
 }
 
 # Function to install Trojan Go
@@ -47,6 +48,7 @@ install_trojan_go() {
     mv trojan-go /usr/local/bin/trojan-go
     chmod +x /usr/local/bin/trojan-go
     rm -rf "$temp_dir"
+    cd ~
 }
 
 # Function to install acme.sh and obtain SSL certificate
