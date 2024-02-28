@@ -33,7 +33,7 @@ install_xray_core() {
     curl -sL "$xraycore_link" -o xray.zip
     unzip -q xray.zip && rm -rf xray.zip
     mv xray /usr/local/bin/xray
-    chmod x /usr/local/bin/xray
+    chmod +x /usr/local/bin/xray
 }
 
 # Function to install Trojan Go
