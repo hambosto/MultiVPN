@@ -102,7 +102,7 @@ echo "--------------------------------------------"
 echo "IP      : $(curl -sS ipv4.icanhazip.com)"
 echo "Domain  : $(cat /usr/local/etc/xray/domain)"
 echo "--------------------------------------------"
-echo " Github : https://github.com/hambosto"
+echo "Github : https://github.com/hambosto"
 echo "--------------------------------------------"
 
 read -rp "Do you want to reboot your system now? (yes/no): " user_input
