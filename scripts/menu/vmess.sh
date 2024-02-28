@@ -230,13 +230,13 @@ function add_vmess() {
   config_tls="/usr/local/etc/xray/vmess-tls.json"
   config_nontls="/usr/local/etc/xray/vmess-nontls.json"
 
-  read -rp "Enter a unique username: " -e username
+  read -rp "Username: " -e username
   existing_user=$(jq -r --arg username "$username" '.vmess[] | select(.user == $username)' "$config_file")
 
   if [ -n "$existing_user" ]; then
     echo "Error: User already exists."
     read -n 1 -s -r -p "Press any key to go back to the menu"
-    add_vmess
+    menu_vmess
   fi
 
   # Set expiration days
