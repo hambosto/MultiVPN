@@ -25,7 +25,7 @@ install_essentials() {
 # Function to install XRAY Core
 install_xray_core() {
     mkdir -p /var/log/xray
-    chmod x /var/log/xray
+    chmod +x /var/log/xray
     mkdir -p /usr/local/etc/xray
     latest_version=$(curl -sI "https://github.com/XTLS/Xray-core/releases/latest" | grep -i location | awk -F '/' '{print $NF}' | tr -d 'rn[:space:]')
     xraycore_link="https://github.com/XTLS/Xray-core/releases/download/$latest_version/xray-linux-64.zip"
@@ -46,7 +46,7 @@ install_trojan_go() {
     curl -sL "$trojan_go_link" -o trojan-go.zip
     unzip -q trojan-go.zip && rm -rf trojan-go.zip
     mv trojan-go /usr/local/bin/trojan-go
-    chmod x /usr/local/bin/trojan-go
+    chmod +x /usr/local/bin/trojan-go
     rm -rf "$temp_dir"
     cd $(pwd)
 }
