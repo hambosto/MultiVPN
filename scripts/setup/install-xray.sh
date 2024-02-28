@@ -27,7 +27,7 @@ install_xray_core() {
     mkdir -p /var/log/xray
     chmod +x /var/log/xray
     mkdir -p /usr/local/etc/xray
-    latest_version=$(curl -sI "https://github.com/XTLS/Xray-core/releases/latest" | grep -i location | awk -F '/' '{print $NF}' | tr -d 'rn[:space:]')
+    latest_version=$(curl -s "https://api.github.com/repos/XTLS/Xray-core/releases/latest" | jq -r ".tag_name")
     xraycore_link="https://github.com/XTLS/Xray-core/releases/download/$latest_version/xray-linux-64.zip"
     cd "$(mktemp -d)"
     curl -sL "$xraycore_link" -o xray.zip
@@ -38,7 +38,7 @@ install_xray_core() {
 
 # Function to install Trojan Go
 install_trojan_go() {
-    latest_version=$(curl -s "https://api.github.com/repos/p4gefau1t/trojan-go/releases" | grep tag_name | sed -E 's/.*"v(.*)".*/1/' | head -n 1)
+    latest_version=$(curl -s "https://api.github.com/repos/p4gefau1t/trojan-go/releases/latest" | jq -r ".tag_name")
     trojan_go_link="https://github.com/p4gefau1t/trojan-go/releases/download/v${latest_version}/trojan-go-linux-amd64.zip"
     temp_dir=$(mktemp -d)
     cd "$temp_dir"
