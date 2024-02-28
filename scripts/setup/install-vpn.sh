@@ -1,6 +1,4 @@
 #!/bin/bash
-# Set noninteractive environment for package installations
-# export DEBIAN_FRONTEND=noninteractive
 
 # Function to configure rc-local
 configure_rc_local() {
@@ -18,7 +16,7 @@ configure_rc_local() {
 
     # Enable and start the rc-local service
     systemctl enable rc-local
-    systemctl enable rc-local.service
+    # systemctl enable rc-local.service
     systemctl start rc-local.service
 
     # Disable IPv6 temporarily
@@ -41,6 +39,22 @@ update_and_upgrade() {
 
     # Install essential tools
     apt -y install wget curl netfilter-persistent
+
+    # Set timezone to Asia/Jakarta
+    ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
+
+    # Disable AcceptEnv in SSH configuration
+    sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
+
+    # Install Xray dependencies
+    apt -y install libc6 libstdc++ xz-utils
+
+    # Clean up unnecessary packages
+    apt autoremove -y
+
+    # Install additional tools if needed
+    apt -y install nano sed gnupg bc apt-transport-https build-essential git
+
 }
 
 # Function to install Nginx
