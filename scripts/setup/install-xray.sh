@@ -113,7 +113,6 @@ setup_services_and_configs() {
 # Main execution starts here
 domain=$(cat /root/domain)
 
-echo -e "=== Starting XRAY Core Installation ==="
 sleep 1
 
 install_essentials
@@ -129,4 +128,3 @@ mv /root/domain /usr/local/etc/xray/
 # Remove installation script
 rm -f install-xray.sh
 
-echo -e "=== XRAY Core Installation Completed ==="
