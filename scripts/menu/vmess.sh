@@ -140,7 +140,7 @@ function delete_vmess() {
 
     # Delete user from config.json
     echo "$(jq --arg username "$username" '.inbounds[0].settings.clients = (.inbounds[0].settings.clients | map(select(.email != $username)))' "$config_tls")" > "$config_tls"
-    echo "$(jq --arg username "$username" '.inbounds[0].settings.clients = (.inbounds[1].settings.clients | map(select(.email != $username)))' "$config_nonetls")" > "$config_nonetls"
+    echo "$(jq --arg username "$username" '.inbounds[1].settings.clients = (.inbounds[1].settings.clients | map(select(.email != $username)))' "$config_nonetls")" > "$config_nonetls"
 
     # Uncomment the lines below if you want to restart services and delete files
     systemctl restart xray.service
