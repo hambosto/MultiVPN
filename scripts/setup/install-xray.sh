@@ -68,14 +68,14 @@ generate_and_set_uuid() {
     uuid=$(cat /proc/sys/kernel/random/uuid)
     echo "$uuid" >/usr/local/etc/xray/uuid
 
-    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vmess-tls.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' >/usr/local/etc/xray/vmess-tls.json
-    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vmess-nontls.json" | jq '.inbounds[1].settings.clients[0].id = "'$uuid'"' >/usr/local/etc/xray/vmess-nontls.json
-    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vless-tls.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' >/usr/local/etc/xray/vless-tls.json
-    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vless-nontls.json" | jq '.inbounds[1].settings.clients[0].id = "'$uuid'"' >/usr/local/etc/xray/vless-nontls.json
-    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-tls.json" | jq '.inbounds[0].settings.clients[0].password = "'$uuid'"' >/usr/local/etc/xray/trojan-tls.json
-    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-nontls.json" | jq '.inbounds[0].settings.clients[0].password = "'$uuid'"' >/usr/local/etc/xray/trojan-nontls.json
-    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-tcp.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' >/usr/local/etc/xray/trojan-tcp.json
-    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-go.json" | jq '.password[0] = "'$uuid'"' >/usr/local/etc/xray/trojan-go.json
+    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vmess-tls.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' > /usr/local/etc/xray/vmess-tls.json
+    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vmess-nonetls.json" | jq '.inbounds[1].settings.clients[0].id = "'$uuid'"' > /usr/local/etc/xray/vmess-nonetls.json
+    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vless-tls.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' > /usr/local/etc/xray/vless-tls.json
+    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vless-nonetls.json" | jq '.inbounds[1].settings.clients[0].id = "'$uuid'"' > /usr/local/etc/xray/vless-nonetls.json
+    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-tls.json" | jq '.inbounds[0].settings.clients[0].password = "'$uuid'"' > /usr/local/etc/xray/trojan-tls.json
+    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-nonetls.json" | jq '.inbounds[0].settings.clients[0].password = "'$uuid'"' > /usr/local/etc/xray/trojan-nonetls.json
+    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-tcp.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' > /usr/local/etc/xray/trojan-tcp.json
+    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-go.json" | jq '.password[0] = "'$uuid'"' > /usr/local/etc/xray/trojan-go.json
 
     jq -n '{"vmess": [], "vless": [], "trojan": [], "trojan_tcp": [], "trojan_go": []}' >/usr/local/etc/xray/users.db
 
@@ -94,7 +94,7 @@ setup_services_and_configs() {
     systemctl daemon-reload
     sleep 1
 
-    services=("xray.service" "xray@vmess-nontls.service" "xray@vless-tls.service" "xray@vless-nontls.service" "xray@trojan-tls.service" "xray@trojan-nontls.service" "xray@trojan-tcp.service" "trojan-go.service" "nginx")
+    services=("xray.service" "xray@vmess-nonetls.service" "xray@vless-tls.service" "xray@vless-nonetls.service" "xray@trojan-tls.service" "xray@trojan-nonetls.service" "xray@trojan-tcp.service" "trojan-go.service" "nginx")
     for service in "${services[@]}"; do
         echo -e "Restarting $service..."
         systemctl enable "$service"
