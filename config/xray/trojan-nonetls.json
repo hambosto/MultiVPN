@@ -32,7 +32,7 @@
         "network": "ws",
         "security": "none",
         "wsSettings": {
-          "path": "/trojan-nontls",
+          "path": "/trojan-nonetls",
           "headers": {
             "Host": ""
           }
