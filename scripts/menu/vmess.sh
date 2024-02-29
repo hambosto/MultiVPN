@@ -144,7 +144,7 @@ function delete_vmess() {
 
     # Uncomment the lines below if you want to restart services and delete files
     systemctl restart xray.service
-    systemctl restart xray@none.service
+    systemctl restart xray@vmess-nonetls.service
     rm -f "/usr/local/etc/xray/$username-tls.json"
     rm -f "/usr/local/etc/xray/$username-nonetls.json"
 
