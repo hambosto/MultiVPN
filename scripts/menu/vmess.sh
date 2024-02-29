@@ -7,10 +7,10 @@ display_banner() {
 function check_vmess() {
     clear
 
-    config_file="/usr/local/etc/xray/users.db"
+    users_file="/usr/local/etc/xray/users.db"
     access_log="/var/log/xray/access.log"
 
-    vmess_accounts=( $(jq -r '.vmess[].user' "$config_file" | sort -u) )
+    vmess_accounts=( $(jq -r '.vmess[].user' "$users_file" | sort -u) )
 
     if [[ ${#vmess_accounts[@]} -eq 0 ]]; then
         echo "No VMESS accounts found in the configuration file."
@@ -47,8 +47,8 @@ function check_vmess() {
 function renew_vmess() {
     clear
 
-    config_file="/usr/local/etc/xray/users.db"
-    client_count=$(jq -r '.vmess | length' "$config_file")
+    users_file="/usr/local/etc/xray/users.db"
+    client_count=$(jq -r '.vmess | length' "$users_file")
 
     if [[ $client_count -eq 0 ]]; then
         echo "No existing VMESS clients found."
@@ -59,7 +59,7 @@ function renew_vmess() {
     echo "VMESS WEBSOCKET USERS"
     echo "---------------------------------------------------"
 
-    jq -r '.vmess | to_entries[] | "\(.key + 1) - \(.value.user) \(.value.expiry)"' "$config_file" | while read -r line; do echo "$line"; done
+    jq -r '.vmess | to_entries[] | "\(.key + 1) - \(.value.user) \(.value.expiry)"' "$users_file" | while read -r line; do echo "$line"; done
     echo ""
     echo "Press Enter to Go Back To Main"
     echo "---------------------------------------------------"
@@ -73,7 +73,7 @@ function renew_vmess() {
 
     read -p "Expired (days): " expiration_days
     selected_index=$((client_number - 1))
-    selected_user=$(jq -r --argjson index "$selected_index" '.vmess[$index]' "$config_file")
+    selected_user=$(jq -r --argjson index "$selected_index" '.vmess[$index]' "$users_file")
 
     client_user=$(echo "$selected_user" | jq -r '.user')
     client_exp=$(echo "$selected_user" | jq -r '.expiry')
@@ -83,7 +83,7 @@ function renew_vmess() {
     new_expiration=$(( (expiration_timestamp - current_timestamp) / 86400 + expiration_days ))
     new_exp_date=$(date -d "@$((current_timestamp + new_expiration * 86400))" +"%Y-%m-%d")
 
-    echo "$(jq --argjson index "$selected_index" --arg new_exp_date "$new_exp_date" '.vmess[$index].expiry = $new_exp_date' "$config_file")" > "$config_file" 
+    echo "$(jq --argjson index "$selected_index" --arg new_exp_date "$new_exp_date" '.vmess[$index].expiry = $new_exp_date' "$users_file")" > "$users_file" 
 
     
     systemctl restart xray.service
@@ -105,11 +105,11 @@ function renew_vmess() {
 function delete_vmess() {
     clear
     
-    config_file="/usr/local/etc/xray/users.db"
+    users_file="/usr/local/etc/xray/users.db"
     config_tls="/usr/local/etc/xray/vmess-tls.json"]
-    config_nontls="/usr/local/etc/xray/vmess-nontls.json"
+    config_nonetls="/usr/local/etc/xray/vmess-nonetls.json"
 
-    num_clients=$(jq -r '.vmess | length' "$config_file")
+    num_clients=$(jq -r '.vmess | length' "$users_file")
 
     if [[ $num_clients -eq 0 ]]; then
         echo "No existing VMESS clients found."
@@ -119,7 +119,7 @@ function delete_vmess() {
 
     echo "VMESS WEBSOCKET USERS"
     echo "---------------------------------------------------"
-    jq -r '.vmess | to_entries[] | "\(.key + 1) - \(.value.user) \(.value.expiry)"' "$config_file" | while read -r line; do echo "$line"; done
+    jq -r '.vmess | to_entries[] | "\(.key + 1) - \(.value.user) \(.value.expiry)"' "$users_file" | while read -r line; do echo "$line"; done
     echo ""
     echo "Press Enter to Go Back To Main"
     echo "---------------------------------------------------"
@@ -132,21 +132,21 @@ function delete_vmess() {
     fi
 
     selected_index=$((selected_client - 1))
-    username=$(jq -r --argjson index "$selected_index" '.vmess[$index].user' "$config_file")
-    expiry_date=$(jq -r --argjson index "$selected_index" '.vmess[$index].expiry' "$config_file")
+    username=$(jq -r --argjson index "$selected_index" '.vmess[$index].user' "$users_file")
+    expiry_date=$(jq -r --argjson index "$selected_index" '.vmess[$index].expiry' "$users_file")
 
     # Delete user from config.db
-    echo "$(jq --argjson index "$selected_index" '.vmess |= del(.[$index])' "$config_file")" > "$config_file"
+    echo "$(jq --argjson index "$selected_index" '.vmess |= del(.[$index])' "$users_file")" > "$users_file"
 
     # Delete user from config.json
     echo "$(jq --arg username "$username" '.inbounds[0].settings.clients = (.inbounds[0].settings.clients | map(select(.email != $username)))' "$config_tls")" > "$config_tls"
-    echo "$(jq --arg username "$username" '.inbounds[0].settings.clients = (.inbounds[1].settings.clients | map(select(.email != $username)))' "$config_nontls")" > "$config_nontls"
+    echo "$(jq --arg username "$username" '.inbounds[0].settings.clients = (.inbounds[1].settings.clients | map(select(.email != $username)))' "$config_nonetls")" > "$config_nonetls"
 
     # Uncomment the lines below if you want to restart services and delete files
     systemctl restart xray.service
     systemctl restart xray@none.service
     rm -f "/usr/local/etc/xray/$username-tls.json"
-    rm -f "/usr/local/etc/xray/$username-nontls.json"
+    rm -f "/usr/local/etc/xray/$username-nonetls.json"
 
     clear
 
@@ -163,8 +163,8 @@ function delete_vmess() {
 
 function user_vmess() {
     clear
-    config_file="/usr/local/etc/xray/users.db"
-    client_count=$(jq -r '.vmess | length' "$config_file")
+    users_file="/usr/local/etc/xray/users.db"
+    client_count=$(jq -r '.vmess | length' "$users_file")
 
     if [[ ${client_count} == '0' ]]; then
         echo "No existing clients found."
@@ -174,7 +174,7 @@ function user_vmess() {
 
     echo "VMESS WEBSOCKET"
     echo "---------------------------------------------------"
-    jq -r '.vmess | to_entries[] | "\(.key + 1) - \(.value.user) \(.value.expiry)"' "$config_file" | while read -r line; do echo "$line"; done
+    jq -r '.vmess | to_entries[] | "\(.key + 1) - \(.value.user) \(.value.expiry)"' "$users_file" | while read -r line; do echo "$line"; done
     echo ""
     echo "Press Enter to Go Back To Main"
     echo "---------------------------------------------------"
@@ -187,16 +187,16 @@ function user_vmess() {
     fi
 
     selected_index=$((client_number - 1))
-    username=$(jq -r --argjson index "$selected_index" '.vmess[$index].user' "$config_file")
-    client_uuid=$(jq -r --argjson index "$selected_index" '.vmess[$index].uuid' "$config_file")
-    expiration_date=$(jq -r --argjson index "$selected_index" '.vmess[$index].expiry' "$config_file")
+    username=$(jq -r --argjson index "$selected_index" '.vmess[$index].user' "$users_file")
+    client_uuid=$(jq -r --argjson index "$selected_index" '.vmess[$index].uuid' "$users_file")
+    expiration_date=$(jq -r --argjson index "$selected_index" '.vmess[$index].expiry' "$users_file")
 
     tls_port="443"
     none_tls_port="80"
     domain=$(cat /usr/local/etc/xray/domain)
     today=$(date -d "0 days" +"%Y-%m-%d")
     link_ws_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-tls.json)"
-    link_ws_none_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-nontls.json)"
+    link_ws_none_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-nonetls.json)"
 
     clear
     echo "VMESS WEBSOCKET"
@@ -211,7 +211,7 @@ function user_vmess() {
     echo "Security          : Auto"
     echo "Network           : WS"
     echo "Path TLS          : /vmess-tls"
-    echo "Path None TLS     : /vmess-nontls"
+    echo "Path None TLS     : /vmess-nonetls"
     echo "---------------------------------------------------"
     echo "Link WS TLS       : ${link_ws_tls}"
     echo "Link WS None TLS  : ${link_ws_none_tls}"
@@ -225,13 +225,13 @@ function add_vmess() {
   clear
 
   domain=$(cat /usr/local/etc/xray/domain)
-  config_file="/usr/local/etc/xray/users.db"
+  users_file="/usr/local/etc/xray/users.db"
 
   config_tls="/usr/local/etc/xray/vmess-tls.json"
-  config_nontls="/usr/local/etc/xray/vmess-nontls.json"
+  config_nonetls="/usr/local/etc/xray/vmess-nonetls.json"
 
   read -rp "Username: " -e username
-  existing_user=$(jq -r --arg username "$username" '.vmess[] | select(.user == $username)' "$config_file")
+  existing_user=$(jq -r --arg username "$username" '.vmess[] | select(.user == $username)' "$users_file")
 
   if [ -n "$existing_user" ]; then
     echo "Error: User already exists."
@@ -260,39 +260,39 @@ function add_vmess() {
   uuid=$(cat /proc/sys/kernel/random/uuid)
   expiration_date=$(date -d "$expiration_days days" +"%Y-%m-%d")
   today=$(date -d "0 days" +"%Y-%m-%d")
-  echo $(jq --arg username "$username" --arg uuid "$uuid" --arg expiration_date "$expiration_date" '.vmess += [{"user": $username, "uuid": $uuid, "expiry": $expiration_date}]' $config_file) > $config_file
+  echo $(jq --arg username "$username" --arg uuid "$uuid" --arg expiration_date "$expiration_date" '.vmess += [{"user": $username, "uuid": $uuid, "expiry": $expiration_date}]' $users_file) > $users_file
   echo $(jq --arg username "$username" --arg uuid "$uuid" '.inbounds[0].settings.clients += [{"id": $uuid, "alterId": 0, "email": $username}]' $config_tls) > $config_tls
-  echo $(jq --arg username "$username" --arg uuid "$uuid" '.inbounds[1].settings.clients += [{"id": $uuid, "alterId": 0, "email": $username}]' "$config_nontls") > $config_nontls
+  echo $(jq --arg username "$username" --arg uuid "$uuid" '.inbounds[1].settings.clients += [{"id": $uuid, "alterId": 0, "email": $username}]' "$config_nonetls") > $config_nonetls
   
   systemctl restart xray.service
-  systemctl restart xray@vmess-nontls.service
+  systemctl restart xray@vmess-nonetls.service
   service cron restart
 
   # Check the chosen format
   case $format in
     1)
       echo $(jq -n --arg username "$username" --arg hostname "$hostname" --arg domain "$domain" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$hostname,"port":"443","id":$uuid,"aid":"0","net":"ws","path":"wss://\($hostname)/vmess-tls","type":"none","host":$domain,"tls":"tls","sni":$hostname}') > /usr/local/etc/xray/$username-tls.json
-      echo $(jq -n --arg username "$username" --arg hostname "$hostname" --arg domain "$domain" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$hostname,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nontls","type":"none","host":$domain,"tls":"none"}') > /usr/local/etc/xray/$username-nontls.json
+      echo $(jq -n --arg username "$username" --arg hostname "$hostname" --arg domain "$domain" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$hostname,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nontls","type":"none","host":$domain,"tls":"none"}') > /usr/local/etc/xray/$username-nonetls.json
       vmess_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-tls.json)"
-      vmess_nontls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-nontls.json)"
+      vmess_nontls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-nonetls.json)"
       ;;
     2)
       echo $(jq -n --arg username "$username" --arg domain "$domain" --arg hostname "$hostname" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$domain,"port":"443","id":$uuid,"aid":"0","net":"ws","path":"/vmess-tls","type":"none","host":$hostname,"tls":"tls","sni":$hostname}') > /usr/local/etc/xray/$username-tls.json
-      echo $(jq -n --arg username "$username" --arg domain "$domain" --arg hostname "$hostname" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$domain,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nontls","type":"none","host":$hostname,"tls":"none"}') > /usr/local/etc/xray/$username-nontls.json
+      echo $(jq -n --arg username "$username" --arg domain "$domain" --arg hostname "$hostname" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$domain,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nontls","type":"none","host":$hostname,"tls":"none"}') > /usr/local/etc/xray/$username-nonetls.json
       vmess_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-tls.json)"
-      vmess_nontls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-nontls.json)"
+      vmess_nontls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-nonetls.json)"
       ;;
     3)
       echo $(jq -n --arg username "$username" --arg hostname "$hostname" --arg domain "$domain" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$hostname,"port":"443","id":$uuid,"aid":"0","net":"ws","path":"/vmess-tls","type":"none","host":$domain,"tls":"tls","sni":$hostname}') > /usr/local/etc/xray/$username-tls.json
-      echo $(jq -n --arg username "$username" --arg hostname "$hostname" --arg domain "$domain" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$hostname,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nontls","type":"none","host":$domain,"tls":"none"}') > /usr/local/etc/xray/$username-nontls.json
+      echo $(jq -n --arg username "$username" --arg hostname "$hostname" --arg domain "$domain" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$hostname,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nontls","type":"none","host":$domain,"tls":"none"}') > /usr/local/etc/xray/$username-nonetls.json
       vmess_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-tls.json)"
-      vmess_nontls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-nontls.json)"
+      vmess_nontls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-nonetls.json)"
       ;;
     *)
       echo $(jq -n --arg username "$username" --arg domain "$domain" --arg hostname "$hostname" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$domain,"port":"443","id":$uuid,"aid":"0","net":"ws","path":"/vmess-tls","type":"none","host":$hostname,"tls":"tls","sni":$hostname}') > /usr/local/etc/xray/$username-tls.json
-      echo $(jq -n --arg username "$username" --arg domain "$domain" --arg hostname "$hostname" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$domain,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nontls","type":"none","host":$hostname,"tls":"none"}') > /usr/local/etc/xray/$username-nontls.json
+      echo $(jq -n --arg username "$username" --arg domain "$domain" --arg hostname "$hostname" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$domain,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nontls","type":"none","host":$hostname,"tls":"none"}') > /usr/local/etc/xray/$username-nonetls.json
       vmess_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-tls.json)"
-      vmess_nontls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-nontls.json)"
+      vmess_nontls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-nonetls.json)"
       ;;
   esac
 
@@ -309,7 +309,7 @@ function add_vmess() {
   echo "Security          : Auto"
   echo "Network           : WS"
   echo "Path TLS          : /vmess-tls"
-  echo "Path None TLS     : /vmess-nontls"
+  echo "Path None TLS     : /vmess-nonetls"
   echo "---------------------------------------------------"
   echo "Link WS TLS       : $vmess_tls"
   echo ""
