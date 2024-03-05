@@ -32,9 +32,9 @@ function check_vless() {
         user_ips=$(grep -w "$account" "$access_log" | cut -d " " -f 3 | sed 's/tcp://g' | cut -d ":" -f 1 | sort -u)
 
         if [[ -z "$user_ips" ]]; then
-            echo "User: $account - Status: Offline"
+            echo "User: $account - Offline"
         else
-            echo "User: $account - Status: Online - IP Address: $user_ips"
+            echo "User: $account - IP Address: $user_ips"
         fi
     done
 
@@ -320,8 +320,8 @@ echo "1. Create VLess"
 echo "2. Delete VLess"
 echo "3. Renew VLess"
 echo "4. Check Config"
+echo "5. Users Online"
 echo "0. Go Back"
-echo "10. Online Now"
 echo ""
 read -p "Select menu: " menu
 echo "---------------------------------------------------"
@@ -343,7 +343,7 @@ case $menu in
     clear
     user_vless
     ;;
-10)
+5)
     clear
     check_vless
     ;;
@@ -356,3 +356,4 @@ case $menu in
     menu-vless
     ;;
 esac
+
