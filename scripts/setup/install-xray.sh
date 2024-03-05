@@ -66,7 +66,7 @@ install_acme_and_ssl() {
 # Function to generate and set a UUID for XRAY configuration files
 generate_and_set_uuid() {
     uuid=$(cat /proc/sys/kernel/random/uuid)
-    echo "$uuid" >/usr/local/etc/xray/uuid
+    echo "$uuid" > /usr/local/etc/xray/uuid
 
     wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vmess-tls.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' > /usr/local/etc/xray/vmess-tls.json
     wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vmess-nonetls.json" | jq '.inbounds[1].settings.clients[0].id = "'$uuid'"' > /usr/local/etc/xray/vmess-nonetls.json
@@ -77,7 +77,7 @@ generate_and_set_uuid() {
     wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-tcp.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' > /usr/local/etc/xray/trojan-tcp.json
     wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-go.json" | jq '.password[0] = "'$uuid'"' > /usr/local/etc/xray/trojan-go.json
 
-    jq -n '{"vmess": [], "vless": [], "trojan": [], "trojan_tcp": [], "trojan_go": []}' >/usr/local/etc/xray/users.db
+    jq -n '{"vmess": [], "vless": [], "trojan": [], "trojan_tcp": [], "trojan_go": []}' > /usr/local/etc/xray/users.db
 
 }
 
@@ -105,9 +105,9 @@ setup_services_and_configs() {
     # Configure iptables rules
     iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport 442 -j ACCEPT
     iptables -I INPUT -m state --state NEW -m udp -p udp --dport 442 -j ACCEPT
-    iptables-save >/etc/iptables.up.rules
-    netfilter-persistent save >/dev/null
-    netfilter-persistent reload >/dev/null
+    iptables-save > /etc/iptables.up.rules
+    netfilter-persistent save > /dev/null
+    netfilter-persistent reload > /dev/null
 }
 
 # Main execution starts here
