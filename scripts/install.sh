@@ -107,6 +107,8 @@ echo "--------------------------------------------"
 
 read -rp "Do you want to reboot your system now? (yes/no): " user_input
 
+rm -rf ~/install.sh
+
 case $user_input in
     [Yy]|[Yy][Ee][Ss])
         clear
