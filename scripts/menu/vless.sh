@@ -18,7 +18,7 @@ function check_vless() {
         echo "---------------------------------------------------"
         echo ""
         read -n 1 -s -r -p "Press any key to go back to the menu"
-        menu-vmess
+        menu-vless
     fi
 
     echo "VLESS WEBSOCKET USERS"
@@ -41,7 +41,7 @@ function check_vless() {
     echo "---------------------------------------------------"
     echo ""
     read -n 1 -s -r -p "Press any key to go back to the menu"
-    menu-vmess
+    menu-vless
 }
 
 function renew_vless() {
@@ -155,7 +155,7 @@ function delete_vless() {
     echo "---------------------------------------------------"
 
     read -n 1 -s -r -p "Press any key to go back to the menu"
-    menu-vmess
+    menu-vless
 }
 
 function user_vless() {
@@ -166,7 +166,7 @@ function user_vless() {
     if [[ ${client_count} == '0' ]]; then
         echo "No existing clients found."
         read -n 1 -s -r -p "Press any key to go back to the menu"
-        menu-vmess
+        menu-vless
     fi
 
     echo "VLESS WEBSOCKET"
@@ -180,7 +180,7 @@ function user_vless() {
 
     if [ -z $client_number ]; then
         clear
-        menu-vmess
+        menu-vless
     fi
 
     selected_index=$((client_number - 1))
@@ -216,7 +216,7 @@ function user_vless() {
     echo "---------------------------------------------------"
 
     read -n 1 -s -r -p "Press any key to go back to the menu"
-    menu-vmess
+    menu-vless
 }
 
 function add_vless() {
@@ -234,7 +234,7 @@ function add_vless() {
     if [ -n "$existing_user" ]; then
         echo "Error: User already exists."
         read -n 1 -s -r -p "Press any key to go back to the menu"
-        menu-vmess
+        menu-vless
     fi
 
     # Set expiration days
@@ -311,7 +311,7 @@ function add_vless() {
     echo "---------------------------------------------------"
     echo ""
     read -n 1 -s -r -p "Press any key to go back to the menu"
-    menu-vmess
+    menu-vless
 }
 
 display_banner
