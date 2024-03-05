@@ -328,7 +328,7 @@ echo "1. Create Vmess"
 echo "2. Delete Vmess"
 echo "3. Renew Vmess"
 echo "4. Check Config"
-echo "5. Online Now"
+echo "5. Users Online"
 echo "0. Go Back to Menu"
 echo ""
 read -p "Select menu: " menu
