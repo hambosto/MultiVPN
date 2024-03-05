@@ -32,9 +32,9 @@ function check_vmess() {
         user_ips=$(grep -w "$account" "$access_log" | cut -d " " -f 3 | sed 's/tcp://g' | cut -d ":" -f 1 | sort -u)
 
         if [[ -z "$user_ips" ]]; then
-            echo "User: $account - Status: Offline"
+            echo "User: $account - Offline"
         else
-            echo "User: $account - Status: Online - IP Address: $user_ips"
+            echo "User: $account - IP Address: $user_ips"
         fi
     done
 
@@ -262,7 +262,7 @@ function add_vmess() {
   today=$(date -d "0 days" +"%Y-%m-%d")
   echo $(jq --arg username "$username" --arg uuid "$uuid" --arg expiration_date "$expiration_date" '.vmess += [{"user": $username, "uuid": $uuid, "expiry": $expiration_date}]' $users_file) > $users_file
   echo $(jq --arg username "$username" --arg uuid "$uuid" '.inbounds[0].settings.clients += [{"id": $uuid, "alterId": 0, "email": $username}]' $config_tls) > $config_tls
-  echo $(jq --arg username "$username" --arg uuid "$uuid" '.inbounds[1].settings.clients += [{"id": $uuid, "alterId": 0, "email": $username}]' "$config_nonetls") > $config_nonetls
+  echo $(jq --arg username "$username" --arg uuid "$uuid" '.inbounds[1].settings.clients += [{"id": $uuid, "alterId": 0, "email": $username}]' $config_nonetls) > $config_nonetls
   
   systemctl restart xray.service
   systemctl restart xray@vmess-nonetls.service
