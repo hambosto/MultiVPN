@@ -174,8 +174,8 @@ configure_cron_jobs() {
 
     # Restart cron service
     echo -e "Restarting cron service..."
-    service cron restart >/dev/null 2>&1
-    service cron reload >/dev/null 2>&1
+    service cron restart > /dev/null 2>&1
+    service cron reload > /dev/null 2>&1
 }
 
 # Function to clean up unnecessary files and packages
@@ -194,26 +194,26 @@ cleanup() {
 # Function to restart services
 restart_services() {
     # Restart services
-    echo -e "[OK] Restarting nginx..."
+    echo -e "Restarting nginx..."
     /etc/init.d/nginx restart >/dev/null 2>&1
     sleep 1
-    echo -e "[OK] Restarting cron..."
+    echo -e "Restarting cron..."
     /etc/init.d/cron restart >/dev/null 2>&1
     sleep 1
-    echo -e "[OK] Restarting fail2ban..."
+    echo -e "Restarting fail2ban..."
     /etc/init.d/fail2ban restart >/dev/null 2>&1
     sleep 1
-    echo -e "[OK] Restarting resolvconf..."
+    echo -e "Restarting resolvconf..."
     /etc/init.d/resolvconf restart >/dev/null 2>&1
     sleep 1
-    echo -e "[OK] Restarting vnstat..."
+    echo -e "Restarting vnstat..."
     /etc/init.d/vnstat restart >/dev/null 2>&1
 }
 
 # Function to clear command history and disable further recording
 clear_history_and_disable_recording() {
     # Clear command history and disable further recording
-    echo -e "[INFO] Clearing command history and disabling further recording..."
+    echo -e "Clearing command history and disabling further recording..."
     history -c
     echo "unset HISTFILE" >> /etc/profile
 }
