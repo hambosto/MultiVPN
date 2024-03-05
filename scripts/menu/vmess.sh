@@ -41,7 +41,7 @@ function check_vmess() {
     echo "---------------------------------------------------"
     echo ""
     read -n 1 -s -r -p "Press any key to go back to the menu"
-    menu_vmess
+    menu-vmess
 }
 
 function renew_vmess() {
@@ -99,7 +99,7 @@ function renew_vmess() {
     echo "---------------------------------------------------"
 
     read -n 1 -s -r -p "Press any key to go back to the menu"
-    menu_vmess
+    menu-vmess
 }
 
 function delete_vmess() {
@@ -158,7 +158,7 @@ function delete_vmess() {
     echo "---------------------------------------------------"
 
     read -n 1 -s -r -p "Press any key to go back to the menu"
-    menu_vmess
+    menu-vmess
 }
 
 function user_vmess() {
@@ -169,7 +169,7 @@ function user_vmess() {
     if [[ ${client_count} == '0' ]]; then
         echo "No existing clients found."
         read -n 1 -s -r -p "Press any key to go back to the menu"
-        menu_vmess
+        menu-vmess
     fi
 
     echo "VMESS WEBSOCKET"
@@ -183,7 +183,7 @@ function user_vmess() {
 
     if [ -z $client_number ]; then
         clear
-        menu_vmess
+        menu-vmess
     fi
 
     selected_index=$((client_number - 1))
@@ -218,7 +218,7 @@ function user_vmess() {
     echo "---------------------------------------------------"
     
     read -n 1 -s -r -p "Press any key to go back to the menu"
-    menu_vmess
+    menu-vmess
 }
 
 function add_vmess() {
@@ -236,7 +236,7 @@ function add_vmess() {
   if [ -n "$existing_user" ]; then
     echo "Error: User already exists."
     read -n 1 -s -r -p "Press any key to go back to the menu"
-    menu_vmess
+    menu-vmess
   fi
 
   # Set expiration days
@@ -317,7 +317,7 @@ function add_vmess() {
   echo "---------------------------------------------------"
   echo ""
   read -n 1 -s -r -p "Press any key to go back to the menu"
-  menu_vmess
+  menu-vmess
 }
 
 clear
