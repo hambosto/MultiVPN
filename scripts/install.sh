@@ -35,7 +35,7 @@ setup_domains() {
 # Function to install XRAY Defender
 install_xray_defender() {
     display_banner
-    echo "Installing XRAY Defender with support for Vmess, Vless, Trojan, and Trojan Go..."
+    echo "Installing XRAY Defender with support for SSH, Vmess, Vless, Trojan, and Trojan Go..."
     sleep 3
     wget -qO /root/install-vpn.sh "https://raw.githubusercontent.com/hambosto/MultiVPN/main/scripts/setup/install-vpn.sh" 
     chmod +x /root/install-vpn.sh 
@@ -48,7 +48,7 @@ install_xray_defender() {
 # Function to install XRAY Core
 install_xray_core() {
     display_banner
-    echo "Installing XRAY Core with support for Vmess, Vless, Trojan, and Trojan Go..."
+    echo "Installing XRAY Core with support for SSH, Vmess, Vless, Trojan, and Trojan Go..."
     sleep 3
     wget -qO /root/install-xray.sh "https://raw.githubusercontent.com/hambosto/MultiVPN/main/scripts/setup/install-xray.sh" 
     chmod +x /root/install-xray.sh 
@@ -61,7 +61,7 @@ install_xray_core() {
 # Function to install XRAY Menu
 install_xray_menu() {
     display_banner
-    echo "Installing XRAY Menu with support for Vmess, Vless, Trojan, and Trojan Go..."
+    echo "Installing XRAY Menu with support for SSH, Vmess, Vless, Trojan, and Trojan Go..."
     sleep 1
     wget -qO /root/install-menu.sh "https://raw.githubusercontent.com/hambosto/MultiVPN/main/scripts/setup/install-menu.sh" 
     chmod +x /root/install-menu.sh && 
@@ -118,7 +118,7 @@ case $user_input in
         clear
         echo "Exiting without reboot."
         sleep 2
-        # Add your menu logic or any other actions here
+        exit
         ;;
     *)
         clear
