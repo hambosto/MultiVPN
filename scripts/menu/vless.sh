@@ -155,7 +155,7 @@ function delete_vless() {
     echo "---------------------------------------------------"
 
     read -n 1 -s -r -p "Press any key to go back to the menu"
-    menu-vless
+    menu
 }
 
 function user_vless() {
@@ -216,7 +216,7 @@ function user_vless() {
     echo "---------------------------------------------------"
 
     read -n 1 -s -r -p "Press any key to go back to the menu"
-    menu-vless
+    menu
 }
 
 function add_vless() {
@@ -234,7 +234,7 @@ function add_vless() {
     if [ -n "$existing_user" ]; then
         echo "Error: User already exists."
         read -n 1 -s -r -p "Press any key to go back to the menu"
-        menu-vless
+        menu
     fi
 
     # Set expiration days
