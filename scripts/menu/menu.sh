@@ -13,9 +13,9 @@ service_status() {
     local active_state=$(echo "${status}" | grep 'ActiveState=' | cut -f2 -d=)
 
     if [ "${active_state}" == "active" ]; then
-        echo "ON"
+        echo "On"
     else
-        echo "OFF"
+        echo "Off"
     fi
 }
 
@@ -235,11 +235,15 @@ status_nginx=$(get_status "nginx")
 status_xray=$(get_status "xray")
 status_trojan_go=$(get_status "trojan-go")
 
-cpu_load=$(printf '%-3s' "$(top -bn1 | awk '/Cpu/ { cpu = "" 100 - $8 "%" }; END { print cpu }')")
-ram_usage=$(free -m | awk '/^Mem:/{printf "%.0f", ($3/$2) * 100}')
 ip_address=$(curl -s icanhazip.com/ip)
-daily_traffic=$(vnstat -d --oneline | awk -F '{print $6}' | sed 's/ //')
-monthly_traffic=$(vnstat -m --oneline | awk -F '{print $11}' | sed 's/ //')
+
+today_download="$(vnstat | grep today | awk '{print $2" "substr ($3, 1, 3)}')"
+today_upload="$(vnstat | grep today | awk '{print $5" "substr ($6, 1, 3)}')"
+today_total="$(vnstat | grep today | awk '{print $8" "substr ($9, 1, 3)}')"
+month_download="$(vnstat -m | grep $(date +%G-%m) | awk '{print $2" "substr ($3, 1 ,3)}')"
+month_upload="$(vnstat -m | grep $(date +%G-%m) | awk '{print $5" "substr ($6, 1 ,3)}')"
+month_total="$(vnstat -m | grep $(date +%G-%m) | awk '{print $8" "substr ($9, 1 ,3)}')"
+
 
 org="$(wget -q -T10 -O- ipinfo.io/org)"
 city="$(wget -q -T10 -O- ipinfo.io/city)"
@@ -249,34 +253,39 @@ region="$(wget -q -T10 -O- ipinfo.io/region)"
 display_banner
 
 echo -e "------------------------------------------------------------------------------------------------"
-echo -e "Domain          : $domain"
-echo -e "IP Address      : $ip_address"
+echo -e "Domain       : $domain"
+echo -e "IP Address   : $ip_address"
 
 if [[ -n "${org}" ]]; then
-    echo -e "Organization    : $org"
+    echo -e "Organization : $org"
 fi
 if [[ -n "${city}" && -n "${country}" ]]; then
-    echo -e "Location        : $city / $country"
+    echo -e "Location     : $city / $country"
 fi
 if [[ -n "${region}" ]]; then
-    echo -e "Region          : $region"
+    echo -e "Region       : $region"
 fi
 if [[ -z "${org}" ]]; then
-    echo -e "Region          : No ISP detected"
+    echo -e "Region       : No ISP detected"
 fi
-
-echo -e "CPU Load        : $cpu_load"
-echo -e "RAM Usage       : $ram_usage%"
-echo -e "Daily Traffic   : $daily_traffic"
-echo -e "Monthly Traffic : $monthly_traffic"
+echo -e "------------------------------------------------------------------------------------------------"
+echo -e "Daily Bandwidth:"
+echo -e "↑↑ Upload    : $today_upload"
+echo -e "↓↓ Download  : $today_download"
+echo -e " ≈ Total     : $today_total"
+echo -e "------------------------------------------------------------------------------------------------"
+echo -e "Montly Bandwidth:"
+echo -e "↑↑ Upload    : $month_upload"
+echo -e "↓↓ Download  : $month_download"
+echo -e " ≈ Total     : $month_total"
 echo -e "------------------------------------------------------------------------------------------------"
 echo -e "VPN Service:"
-echo -e "SSH WS    : Off (Coming Soon)"
-echo -e "Nginx     : $status_nginx"
-echo -e "V2Ray     : $status_xray"
-echo -e "Trojan Go : $status_trojan_go"
+echo -e "SSH WS       : Off (Coming Soon)"
+echo -e "Nginx        : $status_nginx"
+echo -e "V2Ray        : $status_xray"
+echo -e "Trojan Go    : $status_trojan_go"
 echo -e "------------------------------------------------------------------------------------------------"
-echo "Menu Options:"
+echo -e "Menu Options:"
 echo -e "1.  SSH Websocket      4.  Trojan Websocket    7.  Change Domain        10. Restart VPN Service"
 echo -e "2.  Vmess Websocket    5.  Trojan Go           8.  Renew SSL            11. System Status      "
 echo -e "3.  Vless Websocket    6.  Trojan TCP          9.  Change DNS           12. DNS Checker        "
