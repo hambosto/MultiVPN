@@ -169,8 +169,8 @@ install_resolvconf() {
 configure_cron_jobs() {
     # Configure cron jobs
     echo "0 6 * * * root reboot" >> /etc/crontab
-    echo "0 0 * * * root /usr/bin/expiry" >> /etc/crontab
-    echo "*/2 * * * * root /usr/bin/cleaner" >> /etc/crontab
+    echo "0 0 * * * root root /usr/local/sbin/expiry" >> /etc/crontab
+    echo "*/2 * * * * root /usr/local/sbin/cleaner" >> /etc/crontab
 
     # Restart cron service
     echo -e "Restarting cron service..."
