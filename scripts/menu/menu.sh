@@ -96,7 +96,7 @@ END
 
     systemctl restart resolvconf
     systemctl restart systemd-resolved
-    systemctl restart NetworkManager
+    # systemctl restart NetworkManager
 
     echo "$1" > /root/current-dns.txt
 
