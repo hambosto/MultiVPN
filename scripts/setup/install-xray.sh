@@ -97,9 +97,9 @@ setup_services_and_configs() {
     services=("xray.service" "xray@vmess-nonetls.service" "xray@vless-tls.service" "xray@vless-nonetls.service" "xray@trojan-tls.service" "xray@trojan-nonetls.service" "xray@trojan-tcp.service" "trojan-go.service" "nginx")
     for service in "${services[@]}"; do
         echo -e "Restarting $service..."
-        systemctl enable "$service"
-        systemctl start "$service"
-        systemctl restart "$service"
+        systemctl enable "$service" > /dev/null 2>&1
+        systemctl start "$service" > /dev/null 2>&1
+        systemctl restart "$service" > /dev/null 2>&1
     done
 
     # Configure iptables rules
