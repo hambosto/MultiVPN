@@ -103,7 +103,7 @@ END
     echo "Setup Completed"
     sleep 1.5
     clear
-    menu
+    change_dns
 }
 
 # Define setup_custom_dns function
