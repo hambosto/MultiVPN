@@ -340,5 +340,5 @@ case $menu in
     3) clear ; renew_vmess ;;
     4) clear ; user_vmess ;;
     5) clear ; check_vmess ;;
-    *) clear ; menu-vmess ;;
+    *) clear ; menu ;;
 esac
