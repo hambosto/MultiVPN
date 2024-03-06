@@ -4,6 +4,12 @@
     "error": "/var/log/xray/error.log",
     "loglevel": "info"
   },
+  "dns": {
+    "servers": [
+      "https://1.1.1.1/dns-query"
+    ],
+    "queryStrategy": "UseIP"
+  },
   "inbounds": [
     {
       "listen": "127.0.0.1",
@@ -32,7 +38,7 @@
         "network": "ws",
         "security": "none",
         "wsSettings": {
-          "path": "/vmess-ntls",
+          "path": "/vmess-nonetls",
           "headers": {
             "Host": ""
           }
@@ -55,49 +61,60 @@
   "outbounds": [
     {
       "protocol": "freedom",
-      "settings": {}
+      "settings": {
+        "domainStrategy": "UseIP"
+      },
+      "tag": "direct"
     },
     {
       "protocol": "blackhole",
-      "settings": {},
       "tag": "blocked"
+    },
+    {
+      "protocol": "wireguard",
+      "settings": {
+        "secretKey": "mIGQkRxjIyoxX86GbHc04EUxSlIQtbR9FVLtbvdf6GI=",
+        "address": [
+          "172.16.0.2/32",
+          "2606:4700:110:899a:c8c8:72f9:1250:7c6a/128"
+        ],
+        "peers": [
+          {
+            "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
+            "allowedIPs": [
+              "0.0.0.0/0",
+              "::/0"
+            ],
+            "endpoint": "engage.cloudflareclient.com:2408"
+          }
+        ],
+        "reserved": [
+          148,
+          253,
+          57
+        ],
+        "mtu": 1280,
+        "domainStrategy": "ForceIPv4v6"
+      },
+      "tag": "WARP"
     }
   ],
   "routing": {
+    "domainStrategy": "IPIfNonMatch",
     "rules": [
       {
         "type": "field",
-        "ip": [
-          "0.0.0.0/8",
-          "10.0.0.0/8",
-          "100.64.0.0/10",
-          "169.254.0.0/16",
-          "172.16.0.0/12",
-          "192.0.0.0/24",
-          "192.0.2.0/24",
-          "192.168.0.0/16",
-          "198.18.0.0/15",
-          "198.51.100.0/24",
-          "203.0.113.0/24",
-          "::1/128",
-          "fc00::/7",
-          "fe80::/10"
+        "domain": [
+          "geosite:openai",
+          "geosite:google",
+          "geosite:youtube",
+          "geosite:netflix",
+          "geosite:spotify",
+          "geosite:zoom",
+          "geosite:facebook",
+          "geosite:cloudflare"
         ],
-        "outboundTag": "blocked"
-      },
-      {
-        "inboundTag": [
-          "api"
-        ],
-        "outboundTag": "api",
-        "type": "field"
-      },
-      {
-        "type": "field",
-        "outboundTag": "blocked",
-        "protocol": [
-          "bittorrent"
-        ]
+        "outboundTag": "WARP"
       }
     ]
   },
