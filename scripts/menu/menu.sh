@@ -103,7 +103,7 @@ END
     echo "Setup Completed"
     sleep 1.5
     clear
-    changer
+    menu
 }
 
 # Define setup_custom_dns function
@@ -237,9 +237,10 @@ status_trojan_go=$(get_status "trojan-go")
 
 ip_address=$(curl -s icanhazip.com/ip)
 
-today_download="$(vnstat | grep today | awk '{print $2" "substr ($3, 1, 3)}')"
-today_upload="$(vnstat | grep today | awk '{print $5" "substr ($6, 1, 3)}')"
-today_total="$(vnstat | grep today | awk '{print $8" "substr ($9, 1, 3)}')"
+today_download="$(vnstat | grep today | awk 'NR==1{print $2" "substr($3, 1, 3)}')"
+today_upload="$(vnstat | grep today | awk 'NR==1{print $5" "substr($6, 1, 3)}')"
+today_total="$(vnstat | grep today | awk 'NR==1{print $8" "substr($9, 1, 3)}')"
+
 month_download="$(vnstat -m | grep $(date +%G-%m) | awk '{print $2" "substr ($3, 1 ,3)}')"
 month_upload="$(vnstat -m | grep $(date +%G-%m) | awk '{print $5" "substr ($6, 1 ,3)}')"
 month_total="$(vnstat -m | grep $(date +%G-%m) | awk '{print $8" "substr ($9, 1 ,3)}')"
