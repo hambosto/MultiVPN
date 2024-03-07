@@ -150,6 +150,10 @@ configure_dns_resolution() {
     echo "Installing necessary packages (resolvconf, network-manager, dnsutils)..."
     apt install resolvconf network-manager dnsutils -y
 
+    rm -rf /etc/systemd/resolved.conf
+
+    wget -qO /etc/systemd/resolved.conf https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/resolved.conf
+
     echo "Starting DNS resolution services..."
     systemctl start resolvconf.service
     systemctl start systemd-resolved
