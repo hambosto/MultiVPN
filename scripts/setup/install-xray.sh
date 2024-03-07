@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x
-
 # Function to install essential packages and utilities
 install_essentials() {
     echo "Updating and upgrading the system..."
