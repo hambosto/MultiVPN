@@ -2,7 +2,7 @@
 
 # Function to configure rc-local
 configure_rc_local() {
-    # Edit rc-local.service
+    # Download and configure rc-local.service
     wget -qO /etc/systemd/system/rc-local.service "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/rc-local.service"
 
     # Create or recreate /etc/rc.local
@@ -16,7 +16,6 @@ configure_rc_local() {
 
     # Enable and start the rc-local service
     systemctl enable rc-local
-    # systemctl enable rc-local.service
     systemctl start rc-local.service
 
     # Disable IPv6 temporarily
@@ -53,8 +52,7 @@ update_and_upgrade() {
     apt autoremove -y
 
     # Install additional tools if needed
-    apt -y install nano sed gnupg bc dnsutils apt-transport-https build-essential git
-
+    apt -y install nano sed gnupg bc apt-transport-https build-essential git
 }
 
 # Function to install Nginx
@@ -73,7 +71,7 @@ install_nginx() {
     wget -qO /etc/nginx/conf.d/vps_server.conf "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/vps.conf"
 
     # Restart Nginx
-    /etc/init.d/nginx restart
+    systemctl restart nginx
 }
 
 # Function to install vnstat
@@ -84,8 +82,8 @@ install_vnstat() {
     # Enable vnstat service to start on boot
     systemctl enable vnstat.service
 
-    # Start vnstat service
-    systemctl start vnstat.service
+    # Restart vnstat service
+    systemctl restart vnstat.service
 }
 
 # Function to install fail2ban and DOS-Deflate
@@ -100,18 +98,16 @@ install_fail2ban_and_dos_deflate() {
     else
         mkdir /usr/local/ddos
     fi
-    clear
 
     echo "Installing DOS-Deflate..."
 
     # Downloading configuration files and the script
-    wget -qO /usr/local/ddos/ddos.conf http://www.inetbase.com/scripts/ddos/ddos.conf
-    wget -qO /usr/local/ddos/LICENSE http://www.inetbase.com/scripts/ddos/LICENSE
-    wget -qO /usr/local/ddos/ignore.ip.list http://www.inetbase.com/scripts/ddos/ignore.ip.list
-    wget -qO /usr/local/ddos/ddos.sh http://www.inetbase.com/scripts/ddos/ddos.sh
+    for file in ddos.conf LICENSE ignore.ip.list ddos.sh; do
+        wget -qO "/usr/local/ddos/$file" "http://www.inetbase.com/scripts/ddos/$file"
+    done
 
     # Creating symbolic link for convenience
-    cp -s /usr/local/ddos/ddos.sh /usr/local/sbin/ddos
+    ln -s /usr/local/ddos/ddos.sh /usr/local/sbin/ddos
 
     echo "Download complete."
 
@@ -149,20 +145,27 @@ block_torrent_and_p2p_traffic() {
 }
 
 # Function to install resolvconf service
-install_resolvconf() {
-    # Install resolvconf service
-    echo "Installing resolvconf service..."
-    apt install resolvconf -y
+configure_dns_resolution() {
+    # Install and configure DNS resolution services
+    echo "Installing necessary packages (resolvconf, network-manager, dnsutils)..."
+    apt install resolvconf network-manager dnsutils -y
 
-    # Start resolvconf service
-    echo "Starting resolvconf service..."
+    echo "Starting DNS resolution services..."
     systemctl start resolvconf.service
+    systemctl restart systemd-resolved
+    systemctl restart NetworkManager
 
-    # Enable resolvconf service to start on boot
-    echo "Enabling resolvconf service to start on boot..."
-    systemctl enable resolvconf.service
+    echo "Enabling DNS resolution services to start on boot..."
+    systemctl enable resolvconf
+    systemctl enable systemd-resolved
+    systemctl enable NetworkManager
 
-    echo "Resolvconf service installation and configuration completed successfully."
+    echo "Restarting DNS resolution services for the changes to take effect..."
+    systemctl restart resolvconf
+    systemctl restart systemd-resolved
+    systemctl restart NetworkManager
+
+    echo "DNS resolution service installation and configuration completed successfully."
 }
 
 # Function to configure cron jobs
@@ -173,47 +176,31 @@ configure_cron_jobs() {
     echo "*/2 * * * * root /usr/local/sbin/cleaner" >> /etc/crontab
 
     # Restart cron service
-    echo -e "Restarting cron service..."
-    service cron restart > /dev/null 2>&1
-    service cron reload > /dev/null 2>&1
+    echo "Restarting cron service..."
+    systemctl restart cron
 }
 
 # Function to clean up unnecessary files and packages
 cleanup() {
     # Clean up unnecessary files and packages
-    echo -e "Cleaning up unnecessary files and packages..."
+    echo "Cleaning up unnecessary files and packages..."
     apt autoclean -y
     apt -y remove --purge unscd
-    apt-get -y --purge remove samba*
-    apt-get -y --purge remove apache2*
-    apt-get -y --purge remove bind9*
-    apt-get -y remove sendmail*
+    apt-get -y --purge remove samba* apache2* bind9* sendmail*
     apt autoremove -y
 }
 
 # Function to restart services
 restart_services() {
     # Restart services
-    echo -e "Restarting nginx..."
-    /etc/init.d/nginx restart >/dev/null 2>&1
-    sleep 1
-    echo -e "Restarting cron..."
-    /etc/init.d/cron restart >/dev/null 2>&1
-    sleep 1
-    echo -e "Restarting fail2ban..."
-    /etc/init.d/fail2ban restart >/dev/null 2>&1
-    sleep 1
-    echo -e "Restarting resolvconf..."
-    /etc/init.d/resolvconf restart >/dev/null 2>&1
-    sleep 1
-    echo -e "Restarting vnstat..."
-    /etc/init.d/vnstat restart >/dev/null 2>&1
+    echo "Restarting services..."
+    systemctl restart nginx cron fail2ban resolvconf vnstat
 }
 
 # Function to clear command history and disable further recording
 clear_history_and_disable_recording() {
     # Clear command history and disable further recording
-    echo -e "Clearing command history and disabling further recording..."
+    echo "Clearing command history and disabling further recording..."
     history -c
     echo "unset HISTFILE" >> /etc/profile
 }
@@ -229,7 +216,7 @@ cleanup_and_remove_script() {
 finishing_touches() {
     # Finishing touches
     clear
-    echo -e "Cleanup and restart completed."
+    echo "Cleanup and restart completed."
 }
 
 # Main execution starts here
@@ -240,7 +227,7 @@ install_nginx
 install_vnstat
 install_fail2ban_and_dos_deflate
 block_torrent_and_p2p_traffic
-install_resolvconf
+configure_dns_resolution
 configure_cron_jobs
 cleanup
 restart_services
