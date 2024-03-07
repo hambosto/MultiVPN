@@ -150,16 +150,23 @@ configure_dns_resolution() {
     echo "Installing necessary packages (resolvconf, network-manager, dnsutils)..."
     apt install resolvconf network-manager dnsutils -y
 
+    # Remove existing resolved.conf
     rm -rf /etc/systemd/resolved.conf
 
+    # Download optimized resolved.conf file with Cloudflare DNS
+    echo "Downloading optimized resolved.conf with Cloudflare DNS..."
     wget -qO /etc/systemd/resolved.conf https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/resolved.conf
 
-    echo "Starting DNS resolution services..."
+    # Record current DNS information
+    echo "Setting DNS to Cloudflare in /root/current-dns.txt..."
+    echo "Cloudflare DNS" > /root/current-dns.txt
+
+    # Start and enable DNS resolution services
+    echo "Starting and enabling DNS resolution services..."
     systemctl start resolvconf.service
     systemctl start systemd-resolved
     systemctl start NetworkManager
 
-    echo "Enabling DNS resolution services to start on boot..."
     systemctl enable resolvconf
     systemctl enable systemd-resolved
     systemctl enable NetworkManager
@@ -172,7 +179,8 @@ configure_dns_resolution() {
     echo "nameserver 127.0.0.53" >> /etc/resolv.conf
     echo "" >> /etc/resolvconf/resolv.conf.d/head
 
-    echo "Restarting DNS resolution services for the changes to take effect..."
+    # Restart DNS resolution services for changes to take effect
+    echo "Restarting DNS resolution services..."
     systemctl restart resolvconf
     systemctl restart systemd-resolved
     systemctl restart NetworkManager
