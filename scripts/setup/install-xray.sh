@@ -150,7 +150,7 @@ generate_and_set_uuid
 setup_services_and_configs
 
 # Move domain file to Xray configuration directory
-mv /root/domain "$xray_config_dir/"
+mv /root/domain /usr/local/etc/xray/
 
 # Remove installation script
 rm -f install-xray.sh
