@@ -85,6 +85,7 @@ install_acme_and_ssl() {
 
 # Function to generate and set a UUID for XRAY configuration files
 generate_and_set_uuid() {
+    xray_config_dir="/usr/local/etc/xray"
     uuid=$(cat /proc/sys/kernel/random/uuid)
     echo "$uuid" > "$xray_config_dir/uuid"
 
