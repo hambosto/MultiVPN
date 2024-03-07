@@ -152,8 +152,8 @@ configure_dns_resolution() {
 
     echo "Starting DNS resolution services..."
     systemctl start resolvconf.service
-    systemctl restart systemd-resolved
-    systemctl restart NetworkManager
+    systemctl start systemd-resolved
+    systemctl start NetworkManager
 
     echo "Enabling DNS resolution services to start on boot..."
     systemctl enable resolvconf
