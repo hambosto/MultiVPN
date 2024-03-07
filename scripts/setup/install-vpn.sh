@@ -25,6 +25,42 @@ configure_rc_local() {
     sed -i -e '/^exit 0/i echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6' /etc/rc.local
 }
 
+install_badvpn() {
+    echo "Installing BadVPN..."
+
+    # Change to a temporary directory for building
+    cd /tmp
+
+    # Create a temporary build directory
+    mkdir build_temp
+    cd build_temp
+
+    # Download and extract the source code
+    echo "Downloading and extracting BadVPN source code..."
+    wget https://github.com/ambrop72/badvpn/archive/1.999.130.tar.gz
+    tar xvzf 1.999.130.tar.gz
+    cd badvpn-1.999.130
+
+    # Configure and build
+    echo "Configuring and building BadVPN..."
+    cmake -DBUILD_NOTHING_BY_DEFAULT=1 -DBUILD_UDPGW=1
+    make
+
+    # Install the binary and libraries
+    echo "Installing BadVPN binary and libraries..."
+    sudo make install
+
+    # Remove the temporary build directory and files
+    echo "Cleaning up temporary files..."
+    cd /tmp && rm -rf build_temp
+
+    # Change to a home directory
+    echo "Returning to the home directory..."
+    cd $HOME
+
+    echo "BadVPN installation complete."
+}
+
 # Function to update and upgrade the system
 update_and_upgrade() {
     # Update and upgrade the system
@@ -246,6 +282,7 @@ update_and_upgrade
 install_nginx
 install_vnstat
 install_fail2ban_and_dos_deflate
+install_badvpn
 block_torrent_and_p2p_traffic
 configure_dns_resolution
 configure_cron_jobs
