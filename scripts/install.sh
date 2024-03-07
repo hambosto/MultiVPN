@@ -1,5 +1,9 @@
 #!/bin/bash
 
+secs_to_human() {
+    echo -e "Installation time : $(( ${1} / 3600 )) hours $(( (${1} / 60) % 60 )) minute's $(( ${1} % 60 )) seconds"
+}
+
 # Function to display banner
 display_banner() {
     clear
@@ -62,6 +66,8 @@ if [ "$(systemd-detect-virt)" == "openvz" ]; then
     exit 1
 fi
 
+start=$(date +%s)
+
 check_installed
 display_banner
 setup_domains
@@ -80,6 +86,10 @@ echo "--------------------------------------------"
 echo "Your IP Address : $(curl -sS ipv4.icanhazip.com)"
 echo "Your Domain     : $(cat /usr/local/etc/xray/domain)"
 echo "--------------------------------------------"
+
+echo ""
+secs_to_human "$(($(date +%s) - ${start}))"
+echo ""
 
 read -rp "Do you want to reboot your system now? (yes/no): " user_input
 
