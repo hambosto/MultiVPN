@@ -90,11 +90,11 @@ generate_and_set_uuid() {
     echo "$uuid" > "$xray_config_dir/uuid"
 
     wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vmess-tls.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/vmess-tls.json"
-    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vmess-nontls.json" | jq '.inbounds[1].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/vmess-nontls.json"
+    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vmess-nonetls.json" | jq '.inbounds[1].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/vmess-nonetls.json"
     wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vless-tls.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/vless-tls.json"
-    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vless-nontls.json" | jq '.inbounds[1].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/vless-nontls.json"
+    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vless-nonetls.json" | jq '.inbounds[1].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/vless-nonetls.json"
     wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-tls.json" | jq '.inbounds[0].settings.clients[0].password = "'$uuid'"' > "$xray_config_dir/trojan-tls.json"
-    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-nontls.json" | jq '.inbounds[0].settings.clients[0].password = "'$uuid'"' > "$xray_config_dir/trojan-nontls.json"
+    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-nonetls.json" | jq '.inbounds[0].settings.clients[0].password = "'$uuid'"' > "$xray_config_dir/trojan-nonetls.json"
     wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-tcp.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/trojan-tcp.json"
     wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-go.json" | jq '.password[0] = "'$uuid'"' > "$xray_config_dir/trojan-go.json"
 
