@@ -96,7 +96,7 @@ END
 
     systemctl restart resolvconf
     systemctl restart systemd-resolved
-    # systemctl restart NetworkManager
+    systemctl restart NetworkManager
 
     echo "$1" > /root/current-dns.txt
 
@@ -273,12 +273,12 @@ echo -e "-----------------------------------------------------------------------
 echo -e "Daily Bandwidth:"
 echo -e "↑↑ Upload    : $today_upload"
 echo -e "↓↓ Download  : $today_download"
-echo -e " ≈ Total     : $today_total"
+echo -e "≈≈ Total     : $today_total"
 echo -e "------------------------------------------------------------------------------------------------"
 echo -e "Montly Bandwidth:"
 echo -e "↑↑ Upload    : $month_upload"
 echo -e "↓↓ Download  : $month_download"
-echo -e " ≈ Total     : $month_total"
+echo -e "≈≈ Total     : $month_total"
 echo -e "------------------------------------------------------------------------------------------------"
 echo -e "VPN Service:"
 echo -e "SSH WS       : Off (Coming Soon)"
