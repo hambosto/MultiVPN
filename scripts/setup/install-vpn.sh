@@ -160,6 +160,14 @@ configure_dns_resolution() {
     systemctl enable systemd-resolved
     systemctl enable NetworkManager
 
+    # Configure /etc/resolv.conf
+    echo "Configuring /etc/resolv.conf..."
+    rm -rf /etc/resolv.conf
+    rm -rf /etc/resolvconf/resolv.conf.d/head
+
+    echo "nameserver 127.0.0.53" >> /etc/resolv.conf
+    echo "" >> /etc/resolvconf/resolv.conf.d/head
+
     echo "Restarting DNS resolution services for the changes to take effect..."
     systemctl restart resolvconf
     systemctl restart systemd-resolved
