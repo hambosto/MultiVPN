@@ -37,7 +37,7 @@ install_badvpn() {
 
     # Download and extract the source code
     echo "Downloading and extracting BadVPN source code..."
-    wget https://github.com/ambrop72/badvpn/archive/1.999.130.tar.gz
+    wget -q https://github.com/ambrop72/badvpn/archive/refs/tags/1.999.130.tar.gz
     tar xvzf 1.999.130.tar.gz
     cd badvpn-1.999.130
 
