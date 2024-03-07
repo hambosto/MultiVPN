@@ -89,12 +89,14 @@ generate_and_set_uuid() {
     uuid=$(cat /proc/sys/kernel/random/uuid)
     echo "$uuid" > "$xray_config_dir/uuid"
 
-    declare -a config_files=("vmess-tls.json" "vmess-nonetls.json" "vless-tls.json" "vless-nonetls.json" "trojan-tls.json" "trojan-nonetls.json" "trojan-tcp.json" "trojan-go.json")
-
-    for file in "${config_files[@]}"; do
-        echo "Setting UUID in $file..."
-        wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/$file" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/$file"
-    done
+    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vmess-tls.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/vmess-tls.json"
+    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vmess-nontls.json" | jq '.inbounds[1].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/vmess-nontls.json"
+    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vless-tls.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/vless-tls.json"
+    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vless-nontls.json" | jq '.inbounds[1].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/vless-nontls.json"
+    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-tls.json" | jq '.inbounds[0].settings.clients[0].password = "'$uuid'"' > "$xray_config_dir/trojan-tls.json"
+    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-nontls.json" | jq '.inbounds[0].settings.clients[0].password = "'$uuid'"' > "$xray_config_dir/trojan-nontls.json"
+    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-tcp.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/trojan-tcp.json"
+    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-go.json" | jq '.password[0] = "'$uuid'"' > "$xray_config_dir/trojan-go.json"
 
     echo "Creating users database for XRAY..."
     jq -n '{"vmess": [], "vless": [], "trojan": [], "trojan_tcp": [], "trojan_go": []}' > "$xray_config_dir/users.db"
