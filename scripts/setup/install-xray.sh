@@ -26,6 +26,7 @@ install_essentials() {
 install_xray_core() {
     xray_log_dir="/var/log/xray"
     xray_config_dir="/usr/local/etc/xray"
+    xray_binary_dir="/usr/local/bin/xray"
 
     echo "Creating directories for XRAY Core..."
     mkdir -p "$xray_log_dir"
@@ -40,8 +41,8 @@ install_xray_core() {
     cd "$(mktemp -d)"
     curl -sL "$xraycore_link" -o xray.zip
     unzip -q xray.zip && rm -rf xray.zip
-    mv xray "$xray_config_dir"
-    chmod +x "$xray_config_dir/xray"
+    mv xray "$xray_binary_dir"
+    chmod +x "$xray_binary_dir"
     cd ~
 }
 
@@ -85,7 +86,6 @@ install_acme_and_ssl() {
 
 # Function to generate and set a UUID for XRAY configuration files
 generate_and_set_uuid() {
-    xray_config_dir="/usr/local/etc/xray"
     uuid=$(cat /proc/sys/kernel/random/uuid)
     echo "$uuid" > "$xray_config_dir/uuid"
 
@@ -140,7 +140,6 @@ setup_services_and_configs() {
 # Main execution starts here
 domain=$(cat /root/domain)
 
-echo "Waiting for 1 second..."
 sleep 1
 
 install_essentials
@@ -151,7 +150,7 @@ generate_and_set_uuid
 setup_services_and_configs
 
 # Move domain file to Xray configuration directory
-mv /root/domain /usr/local/etc/xray/
+mv /root/domain "$xray_config_dir"
 
 # Remove installation script
 rm -f install-xray.sh
