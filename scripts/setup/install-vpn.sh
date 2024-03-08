@@ -275,7 +275,6 @@ finishing_touches() {
 configure_rc_local
 update_and_upgrade
 install_nginx
-install_nodejs
 install_vnstat
 install_fail2ban_and_dos_deflate
 install_badvpn
