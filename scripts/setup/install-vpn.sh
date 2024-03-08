@@ -124,8 +124,8 @@ install_nginx() {
     # Download custom nginx.conf
     wget -qO /etc/nginx/nginx.conf "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/nginx.conf"
 
-    # Download custom vps_server.conf
-    wget -qO /etc/nginx/conf.d/vps_server.conf "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/vps.conf"
+    # Download custom webserver.conf
+    wget -qO /etc/nginx/conf.d/webserver.conf "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/webserver.conf"
 
     # Restart Nginx
     systemctl restart nginx
