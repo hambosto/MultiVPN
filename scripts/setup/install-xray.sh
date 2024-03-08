@@ -26,78 +26,18 @@ install_essentials() {
 
 # Function to install XRAY Core
 install_xray_core() {
-    # Define directories and temporary location
-    xray_log_dir="/var/log/xray"
-    xray_config_dir="/usr/local/etc/xray"
-    xray_binary_dir="/usr/local/bin/xray"
-    xray_temp_dir="$(mktemp -d)"
-
-    # Step 1: Create necessary directories
-    echo "Creating directories for XRAY Core..."
-    mkdir -p "$xray_log_dir"
-    mkdir -p "$xray_config_dir"
-
-    # Ensure proper permissions for the log directory (if necessary)
-    chmod +x "$xray_log_dir"  # Commented out as it's not necessary for directories
-
-    # Step 2: Download and install the latest XRAY Core
     echo "Downloading and installing the latest XRAY Core..."
-    
-    # Get the latest XRAY Core version from GitHub releases
-    latest_version=$(curl -s "https://api.github.com/repos/XTLS/Xray-core/releases/latest" | jq -r ".tag_name")
-
-    # Download the XRAY Core release archive
-    wget -qO "$xray_temp_dir/xray.zip" "https://github.com/XTLS/Xray-core/releases/download/$latest_version/xray-linux-64.zip"
-
-    # Unzip the downloaded archive and remove the temporary directory
-    unzip -q "$xray_temp_dir/xray.zip" && rm -rf "$xray_temp_dir/xray.zip"
-
-    # Move the XRAY binary to the specified directory
-    mv "$xray_temp_dir/xray" "$xray_binary_dir"
-
-    # Set executable permissions for the XRAY binary
-    chmod +x "$xray_binary_dir"
-
-    # Clean up the temporary directory
-    rm -rf "$xray_temp_dir"
-
+    bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install --beta
     echo "XRAY Core installation completed successfully."
 }
 
-# Function to install Trojan Go
-install_trojan_go() {
-    # Define installation directories and temporary location
-    trojan_dir="/usr/local/bin"
-    trojan_temp_dir="$(mktemp -d)"
-
-    echo "Downloading and installing the latest Trojan Go..."
-    
-    # Get the latest Trojan Go version from GitHub releases
-    latest_version=$(curl -s "https://api.github.com/repos/p4gefau1t/trojan-go/releases/latest" | jq -r ".tag_name")
-
-    # Download the Trojan Go release archive
-    wget -qO "$trojan_temp_dir/trojan-go.zip" "https://github.com/p4gefau1t/trojan-go/releases/download/${latest_version}/trojan-go-linux-amd64.zip"
-
-    # Unzip the downloaded archive and remove the temporary directory
-    unzip -q "$trojan_temp_dir/trojan-go.zip" && rm -rf "$trojan_temp_dir/trojan-go.zip"
-
-    # Move the Trojan Go binary to the specified directory
-    mv "$trojan_temp_dir/trojan-go" "$trojan_dir"
-
-    # Set executable permissions for the Trojan Go binary
-    chmod +x "$trojan_dir/trojan-go"
-
-    # Clean up the temporary directory
-    rm -rf "$trojan_temp_dir"
-
-    echo "Trojan Go installation completed successfully."
-}
 
 # Function to install acme.sh and obtain SSL certificate
 install_acme_and_ssl() {
     echo "Stopping Nginx for SSL certificate installation..."
     systemctl stop nginx
     acme_sh_dir="/root/.acme.sh"
+    xray_config_dir="/usr/local/etc/xray"
 
     echo "Creating directory for acme.sh..."
     mkdir "$acme_sh_dir"
@@ -116,6 +56,7 @@ install_acme_and_ssl() {
 # Function to generate and set a UUID for XRAY configuration files
 generate_and_set_uuid() {
     uuid=$(cat /proc/sys/kernel/random/uuid)
+    xray_config_dir="/usr/local/etc/xray"
     echo "$uuid" > "$xray_config_dir/uuid"
 
     wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vmess-tls.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/vmess-tls.json"
@@ -124,8 +65,6 @@ generate_and_set_uuid() {
     wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vless-nonetls.json" | jq '.inbounds[1].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/vless-nonetls.json"
     wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-tls.json" | jq '.inbounds[0].settings.clients[0].password = "'$uuid'"' > "$xray_config_dir/trojan-tls.json"
     wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-nonetls.json" | jq '.inbounds[0].settings.clients[0].password = "'$uuid'"' > "$xray_config_dir/trojan-nonetls.json"
-    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-tcp.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/trojan-tcp.json"
-    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-go.json" | jq '.password[0] = "'$uuid'"' > "$xray_config_dir/trojan-go.json"
 
     echo "Creating users database for XRAY..."
     jq -n '{"vmess": [], "vless": [], "trojan": [], "trojan_tcp": [], "trojan_go": []}' > "$xray_config_dir/users.db"
@@ -143,7 +82,6 @@ setup_services_and_configs() {
     echo "Downloading service and configuration files..."
     wget -qO "/etc/systemd/system/xray.service" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/xray.service"
     wget -qO "/etc/systemd/system/xray@.service" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/xray@.service"
-    wget -qO "/etc/systemd/system/trojan-go.service" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/trojan-go.service"
     wget -qO "$nginx_conf_dir/xray.conf" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray.conf"
 
     sleep 1
@@ -175,7 +113,6 @@ sleep 1
 
 install_essentials
 install_xray_core
-install_trojan_go
 install_acme_and_ssl
 generate_and_set_uuid
 setup_services_and_configs
