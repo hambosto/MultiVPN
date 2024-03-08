@@ -21,8 +21,14 @@ configure_rc_local() {
     # Disable IPv6 temporarily
     echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
 
+    sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+
     # Disable IPv6 permanently by adding the command to /etc/rc.local
-    sed -i -e '/^exit 0/i echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6' /etc/rc.local
+    sed -i '$ i\echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6' /etc/rc.local
+
+    # Allow IPv4 forwarding
+    sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+
 }
 
 install_badvpn() {
@@ -56,6 +62,10 @@ install_badvpn() {
     # Change to a home directory
     echo "Returning to the home directory..."
     cd $HOME
+
+    sed -i '$ i\screen -dmS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7100 --max-clients 500' /etc/rc.local
+    sed -i '$ i\screen -dmS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7200 --max-clients 500' /etc/rc.local
+    sed -i '$ i\screen -dmS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300 --max-clients 500' /etc/rc.local
 
     echo "BadVPN installation complete."
 }
