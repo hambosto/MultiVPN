@@ -25,7 +25,7 @@ install_essentials() {
 # Function to install XRAY Core
 install_xray_core() {
     echo "Downloading and installing the latest XRAY Core..."
-    bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install --beta
+    bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" - install --beta
     echo "XRAY Core installation completed successfully."
 }
 
