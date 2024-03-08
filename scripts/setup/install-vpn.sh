@@ -25,27 +25,6 @@ configure_rc_local() {
     sed -i -e '/^exit 0/i echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6' /etc/rc.local
 }
 
-install_nodejs() {
-    # Check if Node.js is already installed
-    if command -v node &> /dev/null; then
-        echo "Node.js is already installed. Exiting."
-        exit 0
-    fi
-
-    # Update package lists
-    sudo apt update
-
-    # Install prerequisites
-    sudo apt install -y curl
-
-    # Download and install Node.js LTS
-    curl -sL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-    apt install -y nodejs
-
-    # Display installed Node.js and npm versions
-    echo "Node.js $(node -v) and npm $(npm -v) have been installed successfully."
-}
-
 install_badvpn() {
     echo "Installing BadVPN..."
 
