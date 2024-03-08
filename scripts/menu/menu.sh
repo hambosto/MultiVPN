@@ -291,13 +291,13 @@ echo -e "VPN Service:"
 echo -e "SSH WS       : Off (Coming Soon)"
 echo -e "Nginx        : $status_nginx"
 echo -e "V2Ray        : $status_xray"
-echo -e "Trojan Go    : $status_trojan_go"
 echo -e "------------------------------------------------------------------------------------------------"
 echo -e "Menu Options:"
-echo -e "1.  SSH Websocket      4.  Trojan Websocket    7.  Change Domain        10. Restart VPN Service"
-echo -e "2.  Vmess Websocket    5.  Trojan Go           8.  Renew SSL            11. System Status      "
-echo -e "3.  Vless Websocket    6.  Trojan TCP          9.  Change DNS           12. DNS Checker        "
-echo -e "13. Speedtest VPS      14. Install TCP BBR     15. Exit"
+echo -e "1. SSH Websocket       5. Restart VPN Service   9.  Speedtest VPS"
+echo -e "2. Vmess Websocket     6. Change Domain         10. Install TCP BBR"
+echo -e "3. Vless Websocket     7. Renew SSL             11. System Status"
+echo -e "4. Trojan Websocket    8. Change DNS            12. DNS Checker"
+echo -e "                                                13. Exit"
 echo -e "------------------------------------------------------------------------------------------------"
 
 # Read user input
@@ -323,27 +323,27 @@ case $menu in
     ;;
 5)
     clear
-    menu-go
+    restart
     ;;
-5)
-    clear
-    menu-tcp
-    ;;
-7)
+6)
     clear
     change_domain
     ;;
-8)
+7)
     clear
     renew_ssl
     ;;
-9)
+8)
     clear
     change_dns
     ;;
+9)
+    clear
+    speedtest
+    ;;
 10)
     clear
-    restart_service
+    tcp-bbr
     ;;
 11)
     clear
@@ -355,14 +355,6 @@ case $menu in
     ;;
 13)
     clear
-    speedtest
-    ;;
-14)
-    clear
-    tcp-bbr
-    ;;
-15)
-    clear
     exit
     ;;
 *)
@@ -370,3 +362,4 @@ case $menu in
     menu
     ;;
 esac
+
