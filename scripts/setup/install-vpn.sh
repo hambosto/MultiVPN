@@ -46,7 +46,6 @@ install_badvpn() {
     # Configure and build
     echo "Configuring and building BadVPN..."
     cmake -DBUILD_NOTHING_BY_DEFAULT=1 -DBUILD_UDPGW=1
-    make
 
     # Install the binary and libraries
     echo "Installing BadVPN binary and libraries..."
