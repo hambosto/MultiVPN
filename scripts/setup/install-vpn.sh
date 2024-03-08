@@ -40,7 +40,7 @@ install_nodejs() {
 
     # Download and install Node.js LTS
     curl -sL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-    sudo apt install -y nodejs
+    apt install -y nodejs
 
     # Display installed Node.js and npm versions
     echo "Node.js $(node -v) and npm $(npm -v) have been installed successfully."
