@@ -220,9 +220,9 @@ configure_dns_resolution() {
 
     # Start and enable DNS resolution services
     echo "Starting and enabling DNS resolution services..."
-    systemctl start resolvconf.service
-    systemctl start systemd-resolved
-    systemctl start NetworkManager
+    # systemctl start resolvconf.service
+    # systemctl start systemd-resolved
+    # systemctl start NetworkManager
 
     systemctl enable resolvconf
     systemctl enable systemd-resolved
