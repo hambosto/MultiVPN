@@ -212,7 +212,7 @@ configure_dns_resolution() {
 
     # Download optimized resolved.conf file with Cloudflare DNS
     echo "Downloading optimized resolved.conf with Cloudflare DNS..."
-    wget -qO /etc/systemd/resolved.conf https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/resolved.conf
+    wget -qO - https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/resolved.conf > /etc/systemd/resolved.conf
 
     # Record current DNS information
     echo "Setting DNS to Cloudflare in /root/current-dns.txt..."
@@ -220,10 +220,6 @@ configure_dns_resolution() {
 
     # Start and enable DNS resolution services
     echo "Starting and enabling DNS resolution services..."
-    # systemctl start resolvconf.service
-    # systemctl start systemd-resolved
-    # systemctl start NetworkManager
-
     systemctl enable resolvconf
     systemctl enable systemd-resolved
     systemctl enable NetworkManager
