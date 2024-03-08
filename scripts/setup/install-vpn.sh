@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x
-
 # Function to configure rc-local
 configure_rc_local() {
     # Download and configure rc-local.service
