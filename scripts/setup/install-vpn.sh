@@ -109,7 +109,7 @@ update_and_upgrade() {
     apt autoremove -y
 
     # Install additional tools if needed
-    apt -y install nano sed gnupg bc apt-transport-https build-essential git
+    apt -y install nano sed gnupg bc apt-transport-https cmake build-essential git
 }
 
 # Function to install Nginx
