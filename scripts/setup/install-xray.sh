@@ -57,7 +57,7 @@ generate_and_set_uuid() {
     xray_config_dir="/usr/local/etc/xray"
     echo "$uuid" > "$xray_config_dir/uuid"
 
-    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vmess-tls.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/vmess-tls.json"
+    wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vmess-tls.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/config.json"
     wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vmess-nonetls.json" | jq '.inbounds[1].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/vmess-nonetls.json"
     wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vless-tls.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/vless-tls.json"
     wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vless-nonetls.json" | jq '.inbounds[1].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/vless-nonetls.json"
@@ -70,16 +70,16 @@ generate_and_set_uuid() {
 
 # Function to set up services and configurations
 setup_services_and_configs() {
-    xray_service_dir="/etc/systemd/system/xray.service.d"
-    xray_at_service_dir="/etc/systemd/system/xray@.service.d"
+    # xray_service_dir="/etc/systemd/system/xray.service.d"
+    # xray_at_service_dir="/etc/systemd/system/xray@.service.d"
     nginx_conf_dir="/etc/nginx/conf.d"
 
-    echo "Cleaning up existing service directories..."
-    rm -rf "$xray_service_dir" "$xray_at_service_dir"
+    # echo "Cleaning up existing service directories..."
+    # rm -rf "$xray_service_dir" "$xray_at_service_dir"
 
     echo "Downloading service and configuration files..."
-    wget -qO "/etc/systemd/system/xray.service" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/xray.service"
-    wget -qO "/etc/systemd/system/xray@.service" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/xray@.service"
+    # wget -qO "/etc/systemd/system/xray.service" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/xray.service"
+    # wget -qO "/etc/systemd/system/xray@.service" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/xray@.service"
     wget -qO "$nginx_conf_dir/xray.conf" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray.conf"
 
     sleep 1
@@ -87,7 +87,7 @@ setup_services_and_configs() {
     systemctl daemon-reload
     sleep 1
 
-    services=("xray.service" "xray@vmess-nonetls.service" "xray@vless-tls.service" "xray@vless-nonetls.service" "xray@trojan-tls.service" "xray@trojan-nonetls.service" "xray@trojan-tcp.service" "trojan-go.service" "nginx")
+    services=("xray.service" "xray@vmess-nonetls.service" "xray@vless-tls.service" "xray@vless-nonetls.service" "xray@trojan-tls.service" "xray@trojan-nonetls.service" "nginx")
 
     for service in "${services[@]}"; do
         echo -e "Restarting $service..."
