@@ -25,41 +25,39 @@ install_essentials() {
 # Function to install XRAY Core
 install_xray_core() {
     # Define directories and temporary location
-    local log_dir="/var/log/xray"
-    local config_dir="/usr/local/etc/xray"
-    local binary_dir="/usr/local/bin/xray"
-    local temp_dir
+    xray_log_dir="/var/log/xray"
+    xray_config_dir="/usr/local/etc/xray"
+    xray_binary_dir="/usr/local/bin/xray"
+    xray_temp_dir="$(mktemp -d)"
 
     # Step 1: Create necessary directories
     echo "Creating directories for XRAY Core..."
-    mkdir -p "$log_dir"
-    mkdir -p "$config_dir"
+    mkdir -p "$xray_log_dir"
+    mkdir -p "$xray_config_dir"
 
     # Ensure proper permissions for the log directory (if necessary)
-    chmod +x "$log_dir"  # Commented out as it's not necessary for directories
+    chmod +x "$xray_log_dir"  # Commented out as it's not necessary for directories
 
     # Step 2: Download and install the latest XRAY Core
     echo "Downloading and installing the latest XRAY Core..."
     
     # Get the latest XRAY Core version from GitHub releases
-    local latest_version
     latest_version=$(curl -s "https://api.github.com/repos/XTLS/Xray-core/releases/latest" | jq -r ".tag_name")
 
     # Download the XRAY Core release archive
-    temp_dir="$(mktemp -d)"
-    wget -qO "$temp_dir/xray.zip" "https://github.com/XTLS/Xray-core/releases/download/$latest_version/xray-linux-64.zip"
+    wget -qO "$xray_temp_dir/xray.zip" "https://github.com/XTLS/Xray-core/releases/download/$latest_version/xray-linux-64.zip"
 
     # Unzip the downloaded archive and remove the temporary directory
-    unzip -q "$temp_dir/xray.zip" && rm -rf "$temp_dir/xray.zip"
+    unzip -q "$xray_temp_dir/xray.zip" && rm -rf "$xray_temp_dir/xray.zip"
 
     # Move the XRAY binary to the specified directory
-    mv "$temp_dir/xray" "$binary_dir"
+    mv "$xray_temp_dir/xray" "$xray_binary_dir"
 
     # Set executable permissions for the XRAY binary
-    chmod +x "$binary_dir"
+    chmod +x "$xray_binary_dir"
 
     # Clean up the temporary directory
-    rm -rf "$temp_dir"
+    rm -rf "$xray_temp_dir"
 
     echo "XRAY Core installation completed successfully."
 }
@@ -67,30 +65,28 @@ install_xray_core() {
 # Function to install Trojan Go
 install_trojan_go() {
     # Define installation directories and temporary location
-    local installation_directory="/usr/local/bin"
-    local temp_directory
+    trojan_dir="/usr/local/bin"
+    trojan_temp_dir="$(mktemp -d)"
 
     echo "Downloading and installing the latest Trojan Go..."
     
     # Get the latest Trojan Go version from GitHub releases
-    local latest_version
     latest_version=$(curl -s "https://api.github.com/repos/p4gefau1t/trojan-go/releases/latest" | jq -r ".tag_name")
 
     # Download the Trojan Go release archive
-    temp_directory="$(mktemp -d)"
-    wget -qO "$temp_directory/trojan-go.zip" "https://github.com/p4gefau1t/trojan-go/releases/download/${latest_version}/trojan-go-linux-amd64.zip"
+    wget -qO "$trojan_temp_dir/trojan-go.zip" "https://github.com/p4gefau1t/trojan-go/releases/download/${latest_version}/trojan-go-linux-amd64.zip"
 
     # Unzip the downloaded archive and remove the temporary directory
-    unzip -q "$temp_directory/trojan-go.zip" && rm -rf "$temp_directory/trojan-go.zip"
+    unzip -q "$trojan_temp_dir/trojan-go.zip" && rm -rf "$trojan_temp_dir/trojan-go.zip"
 
     # Move the Trojan Go binary to the specified directory
-    mv "$temp_directory/trojan-go" "$installation_directory"
+    mv "$trojan_temp_dir/trojan-go" "$trojan_dir"
 
     # Set executable permissions for the Trojan Go binary
-    chmod +x "$installation_directory/trojan-go"
+    chmod +x "$trojan_dir/trojan-go"
 
     # Clean up the temporary directory
-    rm -rf "$temp_directory"
+    rm -rf "$trojan_temp_dir"
 
     echo "Trojan Go installation completed successfully."
 }
@@ -99,8 +95,7 @@ install_trojan_go() {
 install_acme_and_ssl() {
     echo "Stopping Nginx for SSL certificate installation..."
     systemctl stop nginx
-    local acme_sh_dir="/root/.acme.sh"
-    local config_dir="/usr/local/etc/xray"
+    acme_sh_dir="/root/.acme.sh"
 
     echo "Creating directory for acme.sh..."
     mkdir "$acme_sh_dir"
@@ -113,14 +108,13 @@ install_acme_and_ssl() {
 
     echo "Issuing SSL certificate using acme.sh..."
     "$acme_sh_dir/acme.sh" --issue -d "$domain" --standalone -k ec-256
-    "$acme_sh_dir/acme.sh" --installcert -d "$domain" --fullchainpath "$config_dir/xray.crt" --keypath "$config_dir/xray.key" --ecc
+    "$acme_sh_dir/acme.sh" --installcert -d "$domain" --fullchainpath "$xray_config_dir/xray.crt" --keypath "$xray_config_dir/xray.key" --ecc
 }
 
 # Function to generate and set a UUID for XRAY configuration files
 generate_and_set_uuid() {
-    local config_dir="/usr/local/etc/xray"
     uuid=$(cat /proc/sys/kernel/random/uuid)
-    echo "$uuid" > "$config_dir/uuid"
+    echo "$uuid" > "$xray_config_dir/uuid"
 
     wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vmess-tls.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/vmess-tls.json"
     wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vmess-nonetls.json" | jq '.inbounds[1].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/vmess-nonetls.json"
@@ -174,7 +168,6 @@ setup_services_and_configs() {
 
 # Main execution starts here
 domain=$(cat /root/domain)
-config_dir="/usr/local/etc/xray"
 
 sleep 1
 
@@ -186,7 +179,7 @@ generate_and_set_uuid
 setup_services_and_configs
 
 # Move domain file to Xray configuration directory
-mv /root/domain "$config_dir"
+mv /root/domain "$xray_config_dir"
 
 # Remove installation script
 rm -f install-xray.sh
