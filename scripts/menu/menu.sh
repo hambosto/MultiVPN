@@ -44,8 +44,6 @@ status() {
     echo "Vless Non TLS  : $(service_status xray@vless-nonetls)"
     echo "Trojan TLS     : $(service_status xray@trojan-tls)"
     echo "Trojan Non TLS : $(service_status xray@trojan-nonetls)"
-    echo "Trojan TCP     : $(service_status xray@trojan-tcp)"
-    echo "Trojan GO      : $(service_status trojan-go)"
     echo "---------------------------------------------------------"
 
     read -n 1 -s -r -p "Press any key to go back to the menu"
