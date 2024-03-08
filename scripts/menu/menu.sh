@@ -67,8 +67,8 @@ restart() {
         xray@vless-nonetls
         xray@trojan-tls
         xray@trojan-nonetls
-        xray@trojan-tcp
-        trojan-go
+        # xray@trojan-tcp
+        # trojan-go
     )
 
     for service in "${services_to_restart[@]}"; do
