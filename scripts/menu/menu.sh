@@ -88,14 +88,7 @@ setup_dns() {
     cat > /etc/systemd/resolved.conf << END
 [Resolve]
 DNS=$2
-FallbackDNS=
-Domains=
-LLMNR=no
-MulticastDNS=no
-DNSSEC=no
-DNSOverTLS=no
-Cache=yes
-DNSStubListener=yes
+Domains=~.
 ReadEtcHosts=yes
 END
 
