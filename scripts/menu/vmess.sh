@@ -198,7 +198,7 @@ function user_vmess() {
     link_ws_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-tls.json)"
     link_ws_none_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-nonetls.json)"
 
-    clear
+    # clear
     echo "VMESS WEBSOCKET"
     echo "---------------------------------------------------"
     echo "Remarks           : ${username}"
@@ -222,7 +222,9 @@ function user_vmess() {
 }
 
 function add_vmess() {
-  clear
+  # clear
+
+  display_banner
 
   domain=$(cat /usr/local/etc/xray/domain)
   users_file="/usr/local/etc/xray/users.db"
@@ -297,7 +299,7 @@ function add_vmess() {
   esac
 
   # Display information
-  clear
+  # clear
   echo "---------------------------------------------------"
   echo "Remarks           : $username"
   echo "Created On        : $today"
