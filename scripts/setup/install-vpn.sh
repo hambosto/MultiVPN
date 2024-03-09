@@ -62,12 +62,12 @@ install_badvpn() {
 
 configure_ssh() {
     echo "Configuring SSH..."
-    sed -i '/Port 22/a Port 143' /etc/ssh/sshd_config
-    sed -i 's/#Port 22/Port  22/g' /etc/ssh/sshd_config
+    # sed -i '/Port 22/a Port 143' /etc/ssh/sshd_config
+    # sed -i 's/#Port 22/Port  22/g' /etc/ssh/sshd_config
 
     sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
-    sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=443/g' /etc/default/dropbear
-    sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 109 -p 110 -p 443"/g' /etc/default/dropbear
+    sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=109/g' /etc/default/dropbear
+    # sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 109 -p 110 -p 443"/g' /etc/default/dropbear
 
     wget -qO /etc/issue.net "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/issue.net" && chmod +x /etc/issue.net
     echo "Banner /etc/issue.net" >> /etc/ssh/sshd_config
@@ -327,7 +327,7 @@ install_vnstat
 install_fail2ban_and_dos_deflate
 install_badvpn
 configure_ssh
-configure_stunnel
+# configure_stunnel
 block_torrent_and_p2p_traffic
 configure_dns_resolution
 configure_cron_jobs
