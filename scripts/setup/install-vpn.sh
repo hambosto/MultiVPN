@@ -63,9 +63,22 @@ install_badvpn() {
     echo "Returning to the home directory..."
     cd $HOME
 
-    # sed -i '$ i\screen -dmS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7100 --max-clients 500' /etc/rc.local
-    # sed -i '$ i\screen -dmS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7200 --max-clients 500' /etc/rc.local
-    # sed -i '$ i\screen -dmS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300 --max-clients 500' /etc/rc.local
+    # Download systemd service files
+    service_url="https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services"
+    for port in 7100 7200 7300; do
+        service_file="/etc/systemd/system/udpgw-${port}.service"
+        wget -qO "$service_file" "${service_url}/udpgw-${port}.service"
+    done
+    
+    # Reload systemd and start services
+    echo "Reloading systemd and starting services..."
+    systemctl daemon-reload
+
+    for port in 7100 7200 7300; do
+        systemctl enable "udpgw-${port}.service" || exit 1
+        systemctl start "udpgw-${port}.service" || exit 1
+        systemctl restart "udpgw-${port}.service" || exit 1
+    done
 
     echo "BadVPN installation complete."
 }
