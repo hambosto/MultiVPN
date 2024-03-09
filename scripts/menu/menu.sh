@@ -37,7 +37,7 @@ status() {
     echo "Cron           : $(service_status cron)"
     echo "Nginx          : $(service_status nginx)"
     echo "Fail2ban       : $(service_status fail2ban)"
-    echo "SSH Websocket  : Off"
+    echo "SSH Websocket  : $(service_status dropbear-websocket)"
     echo "Vmess TLS      : $(service_status xray)"
     echo "Vmess Non TLS  : $(service_status xray@vmess-nonetls)"
     echo "Vless TLS      : $(service_status xray@vless-tls)"
@@ -62,13 +62,12 @@ restart() {
         cron
         nginx
         xray
+        dropbear-websocket
         xray@vmess-nonetls
         xray@vless-tls
         xray@vless-nonetls
         xray@trojan-tls
         xray@trojan-nonetls
-        # xray@trojan-tcp
-        # trojan-go
     )
 
     for service in "${services_to_restart[@]}"; do
@@ -231,7 +230,8 @@ get_status() {
 # Get service statuses
 status_nginx=$(get_status "nginx")
 status_xray=$(get_status "xray")
-status_trojan_go=$(get_status "trojan-go")
+status_ssh=$(get_status "dropbear-websocket")
+# status_trojan_go=$(get_status "trojan-go")
 
 ip_address=$(curl -s icanhazip.com/ip)
 
@@ -279,7 +279,7 @@ echo -e "↓↓ Download  : $month_download"
 echo -e "≈≈ Total     : $month_total"
 echo -e "------------------------------------------------------------------------------------------------"
 echo -e "VPN Service:"
-echo -e "SSH WS       : Off (Coming Soon)"
+echo -e "SSH WS       : $status_ssh"
 echo -e "Nginx        : $status_nginx"
 echo -e "V2Ray        : $status_xray"
 echo -e "------------------------------------------------------------------------------------------------"
