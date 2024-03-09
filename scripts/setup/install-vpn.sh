@@ -34,34 +34,7 @@ configure_rc_local() {
 install_badvpn() {
     echo "Installing BadVPN..."
 
-    # Change to a temporary directory for building
-    cd /tmp
-
-    # Create a temporary build directory
-    mkdir build_temp
-    cd build_temp
-
-    # Download and extract the source code
-    echo "Downloading and extracting BadVPN source code..."
-    wget -q https://github.com/ambrop72/badvpn/archive/refs/tags/1.999.130.tar.gz
-    tar xvzf 1.999.130.tar.gz
-    cd badvpn-1.999.130
-
-    # Configure and build
-    echo "Configuring and building BadVPN..."
-    cmake -DBUILD_NOTHING_BY_DEFAULT=1 -DBUILD_UDPGW=1
-
-    # Install the binary and libraries
-    echo "Installing BadVPN binary and libraries..."
-    sudo make install
-
-    # Remove the temporary build directory and files
-    echo "Cleaning up temporary files..."
-    cd /tmp && rm -rf build_temp
-
-    # Change to a home directory
-    echo "Returning to the home directory..."
-    cd $HOME
+    
 
     # Download systemd service files
     service_url="https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services"
