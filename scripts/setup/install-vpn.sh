@@ -75,7 +75,7 @@ configure_ssh() {
     sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=143/g' /etc/default/dropbear
     sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 50000 -p 109 -p 110 -p 69"/g' /etc/default/dropbear
 
-    wget -q -O /etc/issue.net "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/issue.net" && chmod +x /etc/issue.net
+    wget -qO /etc/issue.net "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/issue.net" && chmod +x /etc/issue.net
     echo "Banner /etc/issue.net" >>/etc/ssh/sshd_config
     sed -i 's@DROPBEAR_BANNER=""@DROPBEAR_BANNER="/etc/issue.net"@g' /etc/default/dropbear
     
