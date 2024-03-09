@@ -4,6 +4,13 @@
 # wget -O /usr/local/bin/dropbear-websocket https://raw.githubusercontent.com/hambosto/MultiVPN/main/scripts/ssh/dropbear-websocket.py
 # wget -O /usr/local/bin/stunnel-websocket https://raw.githubusercontent.com/hambosto/MultiVPN/main/scripts/ssh/stunnel-websocket.py
 
+wget -qO /usr/local/bin/proxy3.js https://raw.githubusercontent.com/hambosto/MultiVPN/main/bin/proxy3.js
+chmod +x /usr/local/bin/proxy3.js
+
+wget -qO /etc/systemd/system/openssh-websocket.service https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/openssh.service
+wget -qO /etc/systemd/system/dropbear-websocket.service https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/dropbear.service
+
+
 # chmod +x /usr/local/bin/openssh-websocket
 # chmod +x /usr/local/bin/dropbear-websocket
 # chmod +x /usr/local/bin/stunnel-websocket
