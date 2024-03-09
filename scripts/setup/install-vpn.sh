@@ -35,7 +35,7 @@ install_badvpn() {
     echo "Installing BadVPN..."
 
     # Download and install badvpn-udpgw binary
-    wget -qO /usr/bin/badvpn-udpgw https://raw.githubusercontent.com/hambosto/MultiVPN/main/bin/badvpn-udpgw
+    wget -qO /usr/bin/badvpn-udpgw https://raw.githubusercontent.com/powermx/badvpn/master/badvpn-udpgw
     chmod +x /usr/bin/badvpn-udpgw
     
     # Download systemd service files for different ports
