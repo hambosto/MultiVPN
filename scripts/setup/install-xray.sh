@@ -70,18 +70,10 @@ generate_and_set_uuid() {
 
 # Function to set up services and configurations
 setup_services_and_configs() {
-    # xray_service_dir="/etc/systemd/system/xray.service.d"
-    # xray_at_service_dir="/etc/systemd/system/xray@.service.d"
     nginx_conf_dir="/etc/nginx/conf.d"
 
-    # echo "Cleaning up existing service directories..."
-    # rm -rf "$xray_service_dir" "$xray_at_service_dir"
-
     echo "Downloading service and configuration files..."
-    # wget -qO "/etc/systemd/system/xray.service" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/xray.service"
-    # wget -qO "/etc/systemd/system/xray@.service" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/xray@.service"
     wget -qO "$nginx_conf_dir/xray.conf" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray.conf"
-    wget -qO "$nginx_conf_dir/tunnel.conf" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/tunnel.conf"
 
     sleep 1
     echo -e "Restarting All Services..."
