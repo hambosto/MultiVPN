@@ -60,6 +60,11 @@ install_badvpn() {
     echo "BadVPN installation complete."
 }
 
+install_node() {
+    curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - &&\
+    apt-get install -y nodejs
+}
+
 configure_ssh() {
     echo "Configuring SSH..."
 
@@ -319,6 +324,7 @@ finishing_touches() {
 
 configure_rc_local
 update_and_upgrade
+install_nodejs
 install_nginx
 install_vnstat
 install_fail2ban_and_dos_deflate
