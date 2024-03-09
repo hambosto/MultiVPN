@@ -1,36 +1,27 @@
 #!/bin/bash
 
-BASE_URL="https://raw.githubusercontent.com/hambosto/MultiVPN/main"
-SCRIPTS_DIR="/usr/local/bin"
-SERVICE_DIR="/etc/systemd/system"
-SCRIPTS=("openssh-wss.py" "dropbear-wss.py" "stunnel-wss.py")
-SERVICES=("openssh-wss.service" "dropbear-wss.service" "stunnel-wss.service")
+wget -O /usr/local/bin/openssh-websocket https://raw.githubusercontent.com/hambosto/MultiVPN/main/scripts/ssh/openssh-websocket.py
+wget -O /usr/local/bin/dropbear-websocket https://raw.githubusercontent.com/hambosto/MultiVPN/main/scripts/ssh/dropbear-websocket.py
+wget -O /usr/local/bin/stunnel-websocket https://raw.githubusercontent.com/hambosto/MultiVPN/main/scripts/ssh/stunnel-websocket.py
 
-download_and_install() {
-    local file_name="$1"
-    wget -qO "$SCRIPTS_DIR/$file_name" "$BASE_URL/scripts/ssh/$file_name"
-    chmod +x "$SCRIPTS_DIR/$file_name"
-}
+chmod +x /usr/local/bin/openssh-websocket
+chmod +x /usr/local/bin/dropbear-websocket
+chmod +x /usr/local/bin/stunnel-websocket
 
-download_and_install_services() {
-    local service_name="$1"
-    wget -qO "$SERVICE_DIR/$service_name" "$BASE_URL/config/services/$service_name"
-}
+wget -qO /etc/systemd/system/openssh-websocket.service https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/openssh-websocket.service
+wget -qO /etc/systemd/system/dropbear-websocket.service https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/dropbear-websocket.service
+wget -qO /etc/systemd/system/stunnel-websocket.service https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/stunnel-websocket.service
 
-# Download and install scripts
-for script in "${SCRIPTS[@]}"; do
-    download_and_install "$script"
-done
-
-# Download and install systemd service unit files
-for service in "${SERVICES[@]}"; do
-    download_and_install_services "$service"
-done
-
-# Reload systemd and enable/restart services
 systemctl daemon-reload
 
-for service in "${SERVICES[@]}"; do
-    systemctl enable "$service"
-    systemctl restart "$service"
-done
+systemctl enable openssh-websocket.service
+systemctl start openssh-websocket.service
+systemctl restart openssh-websocket.service
+
+systemctl enable dropbear-websocket.service
+systemctl start dropbear-websocket.service
+systemctl restart dropbear-websocket.service
+
+systemctl enable stunnel-websocket.service
+systemctl start stunnel-websocket.service
+systemctl restart stunnel-websocket.service
