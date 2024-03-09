@@ -62,12 +62,10 @@ install_badvpn() {
 
 configure_ssh() {
     echo "Configuring SSH..."
-    # sed -i '/Port 22/a Port 143' /etc/ssh/sshd_config
-    # sed -i 's/#Port 22/Port  22/g' /etc/ssh/sshd_config
 
     sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
     sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=8008/g' /etc/default/dropbear
-    # sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 109 -p 110 -p 443"/g' /etc/default/dropbear
+    sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 109 -p 110 -p 443"/g' /etc/default/dropbear
 
     wget -qO /etc/issue.net "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/issue.net" && chmod +x /etc/issue.net
     echo "Banner /etc/issue.net" >> /etc/ssh/sshd_config
@@ -75,8 +73,8 @@ configure_ssh() {
     
     echo "/bin/false" >> /etc/shells
     echo "/usr/sbin/nologin" >> /etc/shells
-    /etc/init.d/dropbear restart
-    /etc/init.d/ssh restart
+    service dropbear restart
+    service ssh restart
     echo "SSH configured successfully."
 }
 
@@ -106,18 +104,6 @@ configure_stunnel() {
     echo "Enabling stunnel4..."
     sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
     /etc/init.d/stunnel4 restart
-}
-
-install_nodejs_lts() {
-    # Add NodeSource repository
-    curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-
-    # Install Node.js and npm
-    sudo apt-get install -y nodejs
-
-    # Verify installation
-    node --version
-    npm --version
 }
 
 # Function to update and upgrade the system
@@ -339,8 +325,7 @@ install_vnstat
 install_fail2ban_and_dos_deflate
 install_badvpn
 configure_ssh
-install_nodejs_lts
-# configure_stunnel
+configure_stunnel
 block_torrent_and_p2p_traffic
 configure_dns_resolution
 configure_cron_jobs
