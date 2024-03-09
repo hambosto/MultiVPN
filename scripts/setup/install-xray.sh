@@ -6,7 +6,7 @@ install_essentials() {
     apt update -y && apt upgrade -y
 
     echo "Installing essential packages..."
-    essential_packages=("socat" "python2" "curl" "wget" "sed" "nano" "python3" "jq" "cron" "bash-completion" "ntpdate" "chrony" "zip" "unzip" "pwgen" "openssl" "netcat")
+    essential_packages=("socat" "curl" "jq" "cron" "bash-completion" "ntpdate" "chrony" "zip" "unzip" "netcat")
     apt install "${essential_packages[@]}" -y
 
     echo "Configuring and starting chrony..."
@@ -29,7 +29,6 @@ install_xray_core() {
     echo "XRAY Core installation completed successfully."
 }
 
-
 # Function to install acme.sh and obtain SSL certificate
 install_acme_and_ssl() {
     echo "Stopping Nginx for SSL certificate installation..."
@@ -38,7 +37,7 @@ install_acme_and_ssl() {
     xray_config_dir="/usr/local/etc/xray"
 
     echo "Creating directory for acme.sh..."
-    mkdir "$acme_sh_dir"
+    mkdir -p "$acme_sh_dir"
     curl https://acme-install.netlify.app/acme.sh -o "$acme_sh_dir/acme.sh"
     chmod +x "$acme_sh_dir/acme.sh"
 
@@ -55,7 +54,6 @@ install_acme_and_ssl() {
 generate_and_set_uuid() {
     uuid=$(cat /proc/sys/kernel/random/uuid)
     xray_config_dir="/usr/local/etc/xray"
-    echo "$uuid" > "$xray_config_dir/uuid"
 
     wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vmess-tls.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/config.json"
     wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vmess-nonetls.json" | jq '.inbounds[1].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/vmess-nonetls.json"
