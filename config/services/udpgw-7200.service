@@ -1,0 +1,16 @@
+[Unit]
+Description=MultiVPN - Elevate Your Connectivity with Secure VPN Solutions
+Documentation=https://github.com/hambosto/MultiVPN
+After=network.target nss-lookup.target
+
+[Service]
+Type=simple
+User=root
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+ExecStart=//usr/local/bin/badvpn-udpgw --listen-addr 127.0.0.1:7200 --max-clients 500
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
