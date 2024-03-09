@@ -34,9 +34,11 @@ configure_rc_local() {
 install_badvpn() {
     echo "Installing BadVPN..."
 
+    # Download and install badvpn-udpgw binary
+    wget -qO /usr/bin/badvpn-udpgw https://raw.githubusercontent.com/hambosto/MultiVPN/main/bin/badvpn-udpgw
+    chmod +x /usr/bin/badvpn-udpgw
     
-
-    # Download systemd service files
+    # Download systemd service files for different ports
     service_url="https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services"
     for port in 7100 7200 7300; do
         service_file="/etc/systemd/system/udpgw-${port}.service"
@@ -47,10 +49,12 @@ install_badvpn() {
     echo "Reloading systemd and starting services..."
     systemctl daemon-reload
 
+    # Enable, start, and restart services for each port
     for port in 7100 7200 7300; do
-        systemctl enable "udpgw-${port}.service"
-        systemctl start "udpgw-${port}.service"
-        systemctl restart "udpgw-${port}.service"
+        service_name="udpgw-${port}.service"
+        systemctl enable "$service_name"
+        systemctl start "$service_name"
+        systemctl restart "$service_name"
     done
 
     echo "BadVPN installation complete."
