@@ -66,7 +66,7 @@ configure_ssh() {
     # sed -i 's/#Port 22/Port  22/g' /etc/ssh/sshd_config
 
     sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
-    sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=109/g' /etc/default/dropbear
+    sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=8008/g' /etc/default/dropbear
     # sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 109 -p 110 -p 443"/g' /etc/default/dropbear
 
     wget -qO /etc/issue.net "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/issue.net" && chmod +x /etc/issue.net
