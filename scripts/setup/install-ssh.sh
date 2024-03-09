@@ -5,8 +5,8 @@
 # wget -O /usr/local/bin/stunnel-websocket https://raw.githubusercontent.com/hambosto/MultiVPN/main/scripts/ssh/stunnel-websocket.py
 
 # chmod +x /usr/local/bin/openssh-websocket
-chmod +x /usr/local/bin/dropbear-websocket
-chmod +x /usr/local/bin/stunnel-websocket
+# chmod +x /usr/local/bin/dropbear-websocket
+# chmod +x /usr/local/bin/stunnel-websocket
 
 # wget -qO /etc/systemd/system/openssh-websocket.service https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/openssh-websocket.service
 # wget -qO /etc/systemd/system/dropbear-websocket.service https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/dropbear-websocket.service
