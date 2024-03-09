@@ -108,6 +108,18 @@ configure_stunnel() {
     /etc/init.d/stunnel4 restart
 }
 
+install_nodejs_lts() {
+    # Add NodeSource repository
+    curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+
+    # Install Node.js and npm
+    sudo apt-get install -y nodejs
+
+    # Verify installation
+    node --version
+    npm --version
+}
+
 # Function to update and upgrade the system
 update_and_upgrade() {
     # Update and upgrade the system
@@ -327,6 +339,7 @@ install_vnstat
 install_fail2ban_and_dos_deflate
 install_badvpn
 configure_ssh
+install_nodejs_lts
 # configure_stunnel
 block_torrent_and_p2p_traffic
 configure_dns_resolution
