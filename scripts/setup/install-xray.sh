@@ -81,6 +81,7 @@ setup_services_and_configs() {
     # wget -qO "/etc/systemd/system/xray.service" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/xray.service"
     # wget -qO "/etc/systemd/system/xray@.service" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/xray@.service"
     wget -qO "$nginx_conf_dir/xray.conf" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray.conf"
+    wget -qO "$nginx_conf_dir/tunnel.conf" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/tunnel.conf"
 
     sleep 1
     echo -e "Restarting All Services..."
