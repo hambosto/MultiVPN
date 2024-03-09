@@ -19,15 +19,15 @@ wget -qO /etc/systemd/system/dropbear-websocket.service https://raw.githubuserco
 # wget -qO /etc/systemd/system/dropbear-websocket.service https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/dropbear-websocket.service
 # wget -qO /etc/systemd/system/stunnel-websocket.service https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/stunnel-websocket.service
 
-# systemctl daemon-reload
+systemctl daemon-reload
 
-# systemctl enable openssh-websocket.service
-# systemctl start openssh-websocket.service
-# systemctl restart openssh-websocket.service
+systemctl enable openssh-websocket.service
+systemctl start openssh-websocket.service
+systemctl restart openssh-websocket.service
 
-# systemctl enable dropbear-websocket.service
-# systemctl start dropbear-websocket.service
-# systemctl restart dropbear-websocket.service
+systemctl enable dropbear-websocket.service
+systemctl start dropbear-websocket.service
+systemctl restart dropbear-websocket.service
 
 # systemctl enable stunnel-websocket.service
 # systemctl start stunnel-websocket.service
