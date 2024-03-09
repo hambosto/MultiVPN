@@ -106,7 +106,7 @@ function delete_vmess() {
     clear
     
     users_file="/usr/local/etc/xray/users.db"
-    config_tls="/usr/local/etc/xray/vmess-tls.json"]
+    config_tls="/usr/local/etc/xray/config.json"]
     config_nonetls="/usr/local/etc/xray/vmess-nonetls.json"
 
     num_clients=$(jq -r '.vmess | length' "$users_file")
@@ -229,7 +229,7 @@ function add_vmess() {
   domain=$(cat /usr/local/etc/xray/domain)
   users_file="/usr/local/etc/xray/users.db"
 
-  config_tls="/usr/local/etc/xray/vmess-tls.json"
+  config_tls="/usr/local/etc/xray/config.json"
   config_nonetls="/usr/local/etc/xray/vmess-nonetls.json"
 
   read -rp "Username: " -e username
