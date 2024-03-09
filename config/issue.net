@@ -1,31 +1,47 @@
-Hey there, tech enthusiasts!
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MultiVPN - Elevate Your VPN Experience!</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    
+    .banner {
+      color: #333;
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
 
-🚀 Introducing MultiVPN - Your Passport to the Future of VPN Connectivity! 🌐✨
-
-Are you tired of dealing with complex VPN installations and configurations? Look no further! MultiVPN is here to revolutionize your experience with its auto-installer for SSH Websocket and SSH Websocket with cutting-edge features that will blow your mind.
-
-🛠️ Auto-Installer Magic:
-Say goodbye to manual setups and tedious configurations! MultiVPN's intelligent auto-installer does the heavy lifting for you, ensuring a seamless and hassle-free installation process. Get ready to enjoy VPN connectivity like never before!
-
-🌐 Versatile SSH Websocket:
-MultiVPN brings you the power of SSH Websocket, adding a layer of versatility to your VPN connections. Experience enhanced security and flexibility while enjoying a smooth and reliable connection to the web.
-
-🚀 Powerful Features to Boost Your VPN Game:
-
-Split Tunneling: Channel your traffic intelligently and optimize your bandwidth usage.
-Multi-Protocol Support: Enjoy the freedom to choose between SSH Websocket and traditional protocols for your VPN connections.
-High-Speed Servers: Experience lightning-fast speeds with our strategically located servers worldwide.
-User-Friendly Interface: Navigate MultiVPN effortlessly with a sleek and intuitive user interface.
-Ready to elevate your VPN experience? Dive into the future of connectivity with MultiVPN!
-
-🔗 Check it out on GitHub: https://github.com/hambosto/MultiVPN
-
-🌐 Join the Community:
-Got questions, ideas, or just want to connect with fellow tech enthusiasts? Join our vibrant community on GitHub Discussions and be part of the MultiVPN revolution!
-
-🚀 Get Started Today:
-Don't miss out on the next level of VPN connectivity! Visit the GitHub repository now and empower your online journey with MultiVPN.
-
-Let's redefine the way we connect to the digital world. MultiVPN - Where Innovation Meets Connectivity! 🌐✨
-
-Happy browsing.
+    .link {
+      color: #008CBA;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="banner">
+    <h1>Welcome to MultiVPN - Elevate Your VPN Experience!</h1>
+    <p>No more headaches! Let MultiVPN's auto-installer handle the setup for SSH Websocket and SSH Websocket with mind-blowing features.</p>
+    <p>Versatile, secure, and flexible. MultiVPN's SSH Websocket takes your VPN game to the next level.</p>
+    <p>Power Features:</p>
+    <ul>
+      <li>Split Tunneling: Smart traffic routing for optimal bandwidth.</li>
+      <li>Multi-Protocol Support: Choose between SSH Websocket and traditional protocols.</li>
+      <li>High-Speed Servers: Lightning-fast connections, globally.</li>
+      <li>User-Friendly Interface: Navigate effortlessly with a sleek design.</li>
+    </ul>
+    <p>GitHub: <a class="link" href="https://github.com/hambosto/MultiVPN">https://github.com/hambosto/MultiVPN</a></p>
+    <p>Join the Tech Vibes: Questions? Ideas? Connect with us on GitHub Discussions. Join the MultiVPN revolution!</p>
+    <p>Start Today: Don't miss out! Visit GitHub now and level up your online journey with MultiVPN.</p>
+    <p>Redesigning connectivity – MultiVPN, where innovation meets seamless browsing! 🌐✨</p>
+    <p>Happy browsing, tech enthusiasts!</p>
+  </div>
+</body>
+</html>
