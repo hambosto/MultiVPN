@@ -1,152 +1,152 @@
 #!/bin/bash
 
+# Function to download a file from a URL
+download_file() {
+    local url="$1"
+    local destination="$2"
+    wget -qO "$destination" "$url"
+}
+
+# Function to install a package
+install_package() {
+    apt-get install -y "$1"
+}
+
+# Function to enable and start a systemd service
+enable_and_start_service() {
+    local service="$1"
+    systemctl enable "$service"
+    systemctl start "$service"
+}
+
+# Function to restart a systemd service
+restart_service() {
+    local service="$1"
+    systemctl restart "$service"
+}
+
 # Function to configure rc-local
 configure_rc_local() {
-    # Download and configure rc-local.service
-    wget -qO /etc/systemd/system/rc-local.service "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/rc-local.service"
+    download_file "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/rc-local.service" "/etc/systemd/system/rc-local.service"
+    download_file "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/rc.local" "/etc/rc.local"
 
-    # Create or recreate /etc/rc.local
-    wget -qO /etc/rc.local "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/rc.local"
-
-    # Make /etc/rc.local executable
     chmod +x /etc/rc.local
 
-    # Reload systemd to apply changes
     systemctl daemon-reload
+    enable_and_start_service "rc-local.service"
 
-    # Enable and start the rc-local service
-    systemctl enable rc-local
-    systemctl start rc-local.service
-
-    # Disable IPv6 temporarily
     echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
 
     sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
 
-    # Disable IPv6 permanently by adding the command to /etc/rc.local
     sed -i '$ i\echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6' /etc/rc.local
 
-    # Allow IPv4 forwarding
     sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
-
 }
 
+# Function to install BadVPN
 install_badvpn() {
     echo "Installing BadVPN..."
 
-    # Download and install badvpn-udpgw binary
-    wget -qO /usr/bin/badvpn-udpgw https://raw.githubusercontent.com/powermx/badvpn/master/badvpn-udpgw
+    download_file "https://raw.githubusercontent.com/powermx/badvpn/master/badvpn-udpgw" "/usr/bin/badvpn-udpgw"
     chmod +x /usr/bin/badvpn-udpgw
     
-    # Download systemd service files for different ports
     service_url="https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services"
     for port in 7100 7200 7300; do
         service_file="/etc/systemd/system/udpgw-${port}.service"
-        wget -qO "$service_file" "${service_url}/udpgw-${port}.service"
+        download_file "${service_url}/udpgw-${port}.service" "$service_file"
     done
     
-    # Reload systemd and start services
-    echo "Reloading systemd and starting services..."
     systemctl daemon-reload
 
-    # Enable, start, and restart services for each port
     for port in 7100 7200 7300; do
         service_name="udpgw-${port}.service"
-        systemctl enable "$service_name"
-        systemctl start "$service_name"
-        systemctl restart "$service_name"
+        enable_and_start_service "$service_name"
+        restart_service "$service_name"
     done
 
     echo "BadVPN installation complete."
 }
 
+# Function to install Node.js
 install_nodejs() {
+    echo "Installing Node.js..."
     curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - && apt-get install -y nodejs
+    echo "Node.js installation complete."
 }
 
+# Function to configure SSH
 configure_ssh() {
     echo "Configuring SSH..."
 
     sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
     sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=1337/g' /etc/default/dropbear
-    wget -qO /etc/issue.net "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/issue.net" && chmod +x /etc/issue.net
+
+    download_file "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/issue.net" "/etc/issue.net"
+    chmod +x /etc/issue.net
+
     echo "Banner /etc/issue.net" >> /etc/ssh/sshd_config
     sed -i 's@DROPBEAR_BANNER=""@DROPBEAR_BANNER="/etc/issue.net"@g' /etc/default/dropbear
     
     echo "/bin/false" >> /etc/shells
     echo "/usr/sbin/nologin" >> /etc/shells
-    service dropbear restart
-    service ssh restart
+
+    restart_service "dropbear"
+    restart_service "ssh"
+
     echo "SSH configured successfully."
 }
 
 # Function to update and upgrade the system
 update_and_upgrade() {
-    # Update and upgrade the system
     apt update -y
     apt upgrade -y
     apt dist-upgrade -y
 
-    # Remove firewalls and mail server
     apt-get remove --purge ufw firewalld -y
     apt-get remove --purge exim4 -y
 
-    # Install essential tools
-    apt -y install wget curl netfilter-persistent
+    install_package "wget"
+    install_package "curl"
+    install_package "netfilter-persistent"
 
-    # Set timezone to Asia/Jakarta
     ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
 
-    # Disable AcceptEnv in SSH configuration
     sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
 
-    # Install Xray dependencies
-    apt -y install xz-utils
+    install_package "xz-utils"
 
-    # Clean up unnecessary packages
     apt autoremove -y
 
-    # Install additional tools if needed
-    apt install nano sed gnupg bc apt-transport-https cmake build-essential git dropbear stunnel4 -y
+    install_package "nano sed gnupg bc apt-transport-https cmake build-essential git dropbear stunnel4" -y
 }
 
 # Function to install Nginx
 install_nginx() {
-    # Install Nginx
-    apt -y install nginx
+    install_package "nginx"
 
-    # Remove default Nginx site configurations
     rm /etc/nginx/sites-enabled/default
     rm /etc/nginx/sites-available/default
 
-    # Download custom nginx.conf
-    wget -qO /etc/nginx/nginx.conf "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/nginx.conf"
+    download_file "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/nginx.conf" "/etc/nginx/nginx.conf"
+    download_file "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/webserver.conf" "/etc/nginx/conf.d/webserver.conf"
 
-    # Download custom webserver.conf
-    wget -qO /etc/nginx/conf.d/webserver.conf "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/webserver.conf"
-
-    # Restart Nginx
-    systemctl restart nginx
+    restart_service "nginx"
 }
 
 # Function to install vnstat
 install_vnstat() {
-    # Install vnstat
-    apt-get install vnstat -y
-
-    # Enable vnstat service to start on boot
+    echo "Installing vnstat..."
+    install_package "vnstat"
     systemctl enable vnstat.service
-
-    # Restart vnstat service
     systemctl restart vnstat.service
+    echo "vnstat installation complete."
 }
 
 # Function to install fail2ban and DOS-Deflate
 install_fail2ban_and_dos_deflate() {
-    # Install fail2ban
-    apt -y install fail2ban
+    install_package "fail2ban"
 
-    # Install DOS-Deflate 0.6
     if [ -d '/usr/local/ddos' ]; then
         echo "Please uninstall the previous version first"
         exit 0
@@ -156,17 +156,14 @@ install_fail2ban_and_dos_deflate() {
 
     echo "Installing DOS-Deflate..."
 
-    # Downloading configuration files and the script
     for file in ddos.conf LICENSE ignore.ip.list ddos.sh; do
-        wget -qO "/usr/local/ddos/$file" "http://www.inetbase.com/scripts/ddos/$file"
+        download_file "http://www.inetbase.com/scripts/ddos/$file" "/usr/local/ddos/$file"
     done
 
-    # Creating symbolic link for convenience
     ln -s /usr/local/ddos/ddos.sh /usr/local/sbin/ddos
 
     echo "Download complete."
 
-    # Setting up a cron job to run the script every minute
     echo "Creating a cron job to run the script every minute (Default setting)..."
     /usr/local/ddos/ddos.sh --cron > /dev/null 2>&1
     echo "Cron job created."
@@ -174,7 +171,6 @@ install_fail2ban_and_dos_deflate() {
 
 # Function to block Torrent and P2P Traffic
 block_torrent_and_p2p_traffic() {
-    # Block specific strings associated with torrent and P2P traffic
     echo "Blocking torrent and P2P traffic strings..."
 
     iptables -A FORWARD -m string --string "get_peers" --algo bm -j DROP
@@ -188,12 +184,10 @@ block_torrent_and_p2p_traffic() {
     iptables -A FORWARD -m string --algo bm --string "torrent" -j DROP
     iptables -A FORWARD -m string --algo bm --string "announce" -j DROP
 
-    # Save and apply iptables rules
     echo "Saving and applying iptables rules..."
     iptables-save > /etc/iptables.up.rules
     iptables-restore -t < /etc/iptables.up.rules
 
-    # Save and reload netfilter-persistent rules
     echo "Saving and reloading netfilter-persistent rules..."
     netfilter-persistent save
     netfilter-persistent reload
@@ -201,28 +195,22 @@ block_torrent_and_p2p_traffic() {
 
 # Function to install resolvconf service
 configure_dns_resolution() {
-    # Install and configure DNS resolution services
     echo "Installing necessary packages (resolvconf, network-manager, dnsutils)..."
-    apt install resolvconf network-manager dnsutils -y
+    install_package "resolvconf network-manager dnsutils" -y
 
-    # Remove existing resolved.conf
     rm -rf /etc/systemd/resolved.conf
 
-    # Download optimized resolved.conf file with Cloudflare DNS
     echo "Downloading optimized resolved.conf with Cloudflare DNS..."
-    wget -qO - https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/resolved.conf > /etc/systemd/resolved.conf
+    download_file "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/resolved.conf" "/etc/systemd/resolved.conf"
 
-    # Record current DNS information
     echo "Setting DNS to Cloudflare in /root/current-dns.txt..."
     echo "Cloudflare DNS" > /root/current-dns.txt
 
-    # Start and enable DNS resolution services
     echo "Starting and enabling DNS resolution services..."
-    systemctl enable resolvconf
-    systemctl enable systemd-resolved
-    systemctl enable NetworkManager
+    enable_and_start_service "resolvconf"
+    enable_and_start_service "systemd-resolved"
+    enable_and_start_service "NetworkManager"
 
-    # Configure /etc/resolv.conf
     echo "Configuring /etc/resolv.conf..."
     rm -rf /etc/resolv.conf
     rm -rf /etc/resolvconf/resolv.conf.d/head
@@ -230,30 +218,26 @@ configure_dns_resolution() {
     echo "nameserver 127.0.0.53" >> /etc/resolv.conf
     echo "" >> /etc/resolvconf/resolv.conf.d/head
 
-    # Restart DNS resolution services for changes to take effect
     echo "Restarting DNS resolution services..."
-    systemctl restart resolvconf
-    systemctl restart systemd-resolved
-    systemctl restart NetworkManager
+    restart_service "resolvconf"
+    restart_service "systemd-resolved"
+    restart_service "NetworkManager"
 
     echo "DNS resolution service installation and configuration completed successfully."
 }
 
 # Function to configure cron jobs
 configure_cron_jobs() {
-    # Configure cron jobs
     echo "0 6 * * * root reboot" >> /etc/crontab
     echo "0 0 * * * root root /usr/local/sbin/expiry" >> /etc/crontab
     echo "*/2 * * * * root /usr/local/sbin/cleaner" >> /etc/crontab
 
-    # Restart cron service
     echo "Restarting cron service..."
-    systemctl restart cron
+    restart_service "cron"
 }
 
 # Function to clean up unnecessary files and packages
 cleanup() {
-    # Clean up unnecessary files and packages
     echo "Cleaning up unnecessary files and packages..."
     apt autoclean -y
     apt -y remove --purge unscd
@@ -263,35 +247,22 @@ cleanup() {
 
 # Function to restart services
 restart_services() {
-    # Restart services
     echo "Restarting services..."
-    systemctl restart nginx cron fail2ban resolvconf vnstat
+    restart_service "nginx"
+    restart_service "cron"
+    restart_service "fail2ban"
+    restart_service "resolvconf"
+    restart_service "vnstat"
 }
 
 # Function to clear command history and disable further recording
 clear_history_and_disable_recording() {
-    # Clear command history and disable further recording
     echo "Clearing command history and disabling further recording..."
     history -c
     echo "unset HISTFILE" >> /etc/profile
 }
 
-# Function to cleanup and remove the script
-cleanup_and_remove_script() {
-    # Cleanup and remove script
-    cd
-    rm -f /root/install-vpn.sh
-}
-
-# Function to perform finishing touches
-finishing_touches() {
-    # Finishing touches
-    clear
-    echo "Cleanup and restart completed."
-}
-
 # Main execution starts here
-
 configure_rc_local
 update_and_upgrade
 install_nodejs
@@ -300,12 +271,12 @@ install_vnstat
 install_fail2ban_and_dos_deflate
 install_badvpn
 configure_ssh
-# configure_stunnel
 block_torrent_and_p2p_traffic
 configure_dns_resolution
 configure_cron_jobs
 cleanup
 restart_services
-clear_history_and_disable_recording
-cleanup_and_remove_script
-finishing_touches
+
+rm -f /root/install-vpn.sh
+
+echo "Cleanup and restart completed."
