@@ -61,17 +61,14 @@ install_badvpn() {
 }
 
 install_node() {
-    curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - &&\
-    apt-get install -y nodejs
+    curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - && apt-get install -y nodejs
 }
 
 configure_ssh() {
     echo "Configuring SSH..."
 
     sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
-    sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=8080/g' /etc/default/dropbear
-    sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 1337"/g' /etc/default/dropbear
-
+    sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=1337/g' /etc/default/dropbear
     wget -qO /etc/issue.net "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/issue.net" && chmod +x /etc/issue.net
     echo "Banner /etc/issue.net" >> /etc/ssh/sshd_config
     sed -i 's@DROPBEAR_BANNER=""@DROPBEAR_BANNER="/etc/issue.net"@g' /etc/default/dropbear
