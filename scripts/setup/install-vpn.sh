@@ -75,9 +75,9 @@ install_badvpn() {
     systemctl daemon-reload
 
     for port in 7100 7200 7300; do
-        systemctl enable "udpgw-${port}.service" || exit 1
-        systemctl start "udpgw-${port}.service" || exit 1
-        systemctl restart "udpgw-${port}.service" || exit 1
+        systemctl enable "udpgw-${port}.service"
+        systemctl start "udpgw-${port}.service"
+        systemctl restart "udpgw-${port}.service"
     done
 
     echo "BadVPN installation complete."
