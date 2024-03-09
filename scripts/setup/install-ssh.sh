@@ -1,24 +1,36 @@
 #!/bin/bash
 
-wget -qO /usr/local/bin/openssh-wss https://raw.githubusercontent.com/hambosto/MultiVPN/main/scripts/ssh/openssh-wss.py
-wget -qO /usr/local/bin/dropbear-wss https://raw.githubusercontent.com/hambosto/MultiVPN/main/scripts/ssh/dropbear-wss.py
-wget -qO /usr/local/bin/stunnel-wss https://raw.githubusercontent.com/hambosto/MultiVPN/main/scripts/ssh/stunnel-wss.py
+BASE_URL="https://raw.githubusercontent.com/hambosto/MultiVPN/main"
+SCRIPTS_DIR="/usr/local/bin"
+SERVICE_DIR="/etc/systemd/system"
+SCRIPTS=("openssh-wss.py" "dropbear-wss.py" "stunnel-wss.py")
+SERVICES=("openssh-wss.service" "dropbear-wss.service" "stunnel-wss.service")
 
-chmod +x /usr/local/bin/openssh-wss
-chmod +x /usr/local/bin/dropbear-wss
-chmod +x /usr/local/bin/stunnel-wss
+download_and_install() {
+    local file_name="$1"
+    wget -qO "$SCRIPTS_DIR/$file_name" "$BASE_URL/scripts/ssh/$file_name"
+    chmod +x "$SCRIPTS_DIR/$file_name"
+}
 
-wget -qO /etc/systemd/system/openssh-wss.service https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/openssh-wss.service
-wget -qO /etc/systemd/system/dropbear-wss.service https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/dropbear-wss.service
-wget -qO /etc/systemd/system/stunnel-wss.service https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/stunnel-wss.service
+download_and_install_services() {
+    local service_name="$1"
+    wget -qO "$SERVICE_DIR/$service_name" "$BASE_URL/config/services/$service_name"
+}
 
+# Download and install scripts
+for script in "${SCRIPTS[@]}"; do
+    download_and_install "$script"
+done
+
+# Download and install systemd service unit files
+for service in "${SERVICES[@]}"; do
+    download_and_install_services "$service"
+done
+
+# Reload systemd and enable/restart services
 systemctl daemon-reload
 
-systemctl enable openssh-wss
-systemctl restart openssh-wss
-
-systemctl enable dropbear-wss
-systemctl restart dropbear-wss
-
-systemctl enable stunnel-wss
-systemctl restart stunnel-wss
+for service in "${SERVICES[@]}"; do
+    systemctl enable "$service"
+    systemctl restart "$service"
+done
