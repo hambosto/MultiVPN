@@ -17,7 +17,7 @@ chmod +x /usr/local/bin/proxy3.js
 wget -qO /etc/systemd/system/dropbear-websocket.service https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/dropbear-websocket.service
 # wget -qO /etc/systemd/system/stunnel-websocket.service https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/stunnel-websocket.service
 
-# systemctl daemon-reload
+systemctl daemon-reload
 
 # systemctl enable openssh-websocket.service
 # systemctl start openssh-websocket.service
