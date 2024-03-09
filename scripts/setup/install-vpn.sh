@@ -64,8 +64,8 @@ configure_ssh() {
     echo "Configuring SSH..."
 
     sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
-    sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=8008/g' /etc/default/dropbear
-    sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 109 -p 110 -p 443"/g' /etc/default/dropbear
+    sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=8080/g' /etc/default/dropbear
+    sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 1337"/g' /etc/default/dropbear
 
     wget -qO /etc/issue.net "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/issue.net" && chmod +x /etc/issue.net
     echo "Banner /etc/issue.net" >> /etc/ssh/sshd_config
@@ -87,7 +87,6 @@ configure_stunnel() {
     organizationalunit="IT"
     commonname="MultiVPN"
     email="abuse@hambosto.cloud"
-
 
     echo "Installing stunnel4..."
     apt install stunnel4 -y
