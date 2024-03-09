@@ -140,7 +140,7 @@ update_and_upgrade() {
     apt autoremove -y
 
     # Install additional tools if needed
-    apt -y install nano sed gnupg bc apt-transport-https cmake build-essential git
+    apt install nano sed gnupg bc apt-transport-https cmake build-essential git dropbear stunnel4 -y
 }
 
 # Function to install Nginx
