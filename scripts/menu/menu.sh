@@ -63,7 +63,7 @@ _exists() {
 }
 
 display_banner() {
-    # clear
+    clear
     curl -sS https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/banner
 }
 
