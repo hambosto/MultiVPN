@@ -9,7 +9,7 @@ User=root
 CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
 AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
 NoNewPrivileges=true
-ExecStart=/usr/bin/node --expose-gc /usr/local/bin/proxy3.js -dport 1337 -mport 700
+ExecStart=/usr/bin/node --expose-gc /usr/local/bin/proxy3.js -dport 69 -mport 700
 Restart=on-failure
 
 [Install]
