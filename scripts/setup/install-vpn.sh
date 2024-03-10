@@ -118,7 +118,7 @@ update_and_upgrade() {
 
     apt autoremove -y
 
-    install_package "nano sed gnupg bc apt-transport-https cmake build-essential git dropbear stunnel4" -y
+    install_package "sed gnupg bc apt-transport-https cmake build-essential dropbear"
 }
 
 # Function to install Nginx
