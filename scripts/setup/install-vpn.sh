@@ -135,6 +135,8 @@ install_vnstat() {
 install_fail2ban_and_dos_deflate() {
     apt install fail2ban -y
 
+    enable_and_start_service "fail2ban"
+
     if [ -d '/usr/local/ddos' ]; then
         echo "Please uninstall the previous version first"
         exit 0
