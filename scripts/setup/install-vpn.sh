@@ -125,7 +125,7 @@ install_nginx() {
 # Function to install vnstat
 install_vnstat() {
     echo "Installing vnstat..."
-    install_package "vnstat"
+    apt install vnstat -y
     systemctl enable vnstat.service
     systemctl restart vnstat.service
     echo "vnstat installation complete."
