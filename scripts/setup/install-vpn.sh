@@ -28,12 +28,10 @@ configure_rc_local() {
     chmod +x /etc/rc.local
 
     systemctl daemon-reload
+    
     enable_and_start_service "rc-local.service"
 
     echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
-
-    sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
-
     sed -i '$ i\echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6' /etc/rc.local
 
     sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
@@ -75,9 +73,17 @@ configure_ssh() {
     echo "Configuring SSH..."
 
     sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
+
+    sed -i '/Port 22/a Port 500' /etc/ssh/sshd_config
+    sed -i '/Port 22/a Port 40000' /etc/ssh/sshd_config
+    sed -i '/Port 22/a Port 51443' /etc/ssh/sshd_config
+    sed -i '/Port 22/a Port 58080' /etc/ssh/sshd_config
+    sed -i '/Port 22/a Port 200' /etc/ssh/sshd_config
+    sed -i 's/#Port 22/Port 22/g' /etc/ssh/sshd_config
+    
     sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
     sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=143/g' /etc/default/dropbear
-    sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 1337"/g' /etc/default/dropbear
+    sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 50000 -p 109 -p 110 -p 69"/g' /etc/default/dropbear
 
     download_file "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/issue.net" "/etc/issue.net"
     chmod +x /etc/issue.net
