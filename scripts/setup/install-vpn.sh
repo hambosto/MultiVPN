@@ -7,11 +7,6 @@ download_file() {
     wget -qO "$destination" "$url"
 }
 
-# Function to install a package
-install_package() {
-    apt-get install -y "$1"
-}
-
 # Function to enable and start a systemd service
 enable_and_start_service() {
     local service="$1"
@@ -79,6 +74,7 @@ install_nodejs() {
 configure_ssh() {
     echo "Configuring SSH..."
 
+    sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
     sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
     sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=1337/g' /etc/default/dropbear
 
@@ -106,24 +102,16 @@ update_and_upgrade() {
     apt-get remove --purge ufw firewalld -y
     apt-get remove --purge exim4 -y
 
-    install_package "wget"
-    install_package "curl"
-    install_package "netfilter-persistent"
+    apt install wget curl netfilter-persistent xz-utils -y
 
     ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
 
-    sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
-
-    install_package "xz-utils"
-
-    apt autoremove -y
-
-    install_package "sed gnupg bc apt-transport-https cmake build-essential dropbear"
+    apt install sed gnupg bc apt-transport-https cmake build-essential dropbear -y
 }
 
 # Function to install Nginx
 install_nginx() {
-    install_package "nginx"
+    apt install nginx -y
 
     rm /etc/nginx/sites-enabled/default
     rm /etc/nginx/sites-available/default
@@ -145,7 +133,7 @@ install_vnstat() {
 
 # Function to install fail2ban and DOS-Deflate
 install_fail2ban_and_dos_deflate() {
-    install_package "fail2ban"
+    apt install fail2ban -y
 
     if [ -d '/usr/local/ddos' ]; then
         echo "Please uninstall the previous version first"
@@ -196,7 +184,7 @@ block_torrent_and_p2p_traffic() {
 # Function to install resolvconf service
 configure_dns_resolution() {
     echo "Installing necessary packages (resolvconf, network-manager, dnsutils)..."
-    install_package "resolvconf network-manager dnsutils" -y
+    apt install resolvconf network-manager dnsutils -y
 
     rm -rf /etc/systemd/resolved.conf
 
