@@ -98,16 +98,10 @@ configure_ssh() {
 
     sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
 
-    # sed -i '/Port 22/a Port 500' /etc/ssh/sshd_config
-    # sed -i '/Port 22/a Port 40000' /etc/ssh/sshd_config
-    # sed -i '/Port 22/a Port 51443' /etc/ssh/sshd_config
-    # sed -i '/Port 22/a Port 58080' /etc/ssh/sshd_config
-    # sed -i '/Port 22/a Port 200' /etc/ssh/sshd_config
     sed -i 's/#Port 22/Port 22/g' /etc/ssh/sshd_config
     
     sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
     sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=189/g' /etc/default/dropbear
-    # sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 50000 -p 109 -p 110 -p 69"/g' /etc/default/dropbear
 
     download_file "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/issue.net" "/etc/issue.net"
     chmod +x /etc/issue.net
@@ -218,31 +212,19 @@ block_torrent_and_p2p_traffic() {
 configure_dns_resolution() {
     echo "Installing necessary packages (resolvconf, network-manager, dnsutils)..."
     apt install resolvconf network-manager dnsutils -y
-    
-    # still error on debian, idk why
-    if [ -f /etc/debian_version ]; then
-        rm -rf /etc/systemd/resolved.conf
-
-        echo "Downloading optimized resolved.conf with Cloudflare DNS..."
-        download_file "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/resolved.conf" "/etc/systemd/resolved.conf"
-
-        echo "Setting DNS to Cloudflare in /root/current-dns.txt..."
-        echo "Cloudflare DNS" >/root/current-dns.txt
-    fi
 
     echo "Starting and enabling DNS resolution services..."
     enable_and_start_service "resolvconf"
     enable_and_start_service "systemd-resolved"
     enable_and_start_service "NetworkManager"
 
-    if [ -f /etc/debian_version ]; then
-        echo "Configuring /etc/resolv.conf..."
-        rm -rf /etc/resolv.conf
-        rm -rf /etc/resolvconf/resolv.conf.d/head
+    echo "Setting DNS to Cloudflare in /root/current-dns.txt..."
+    echo "Cloudflare DNS" > /root/current-dns.txt
+    echo "nameserver 1.1.1.1" >> /etc/resolvconf/resolv.conf.d/head
+    echo "nameserver 1.0.0.1" >> /etc/resolvconf/resolv.conf.d/head
 
-        echo "nameserver 127.0.0.53" >>/etc/resolv.conf
-        echo "" >>/etc/resolvconf/resolv.conf.d/head
-    fi
+    rm /etc/resolv.conf
+    ln -s /run/resolvconf/resolv.conf /etc/resolv.conf
 
     echo "Restarting DNS resolution services..."
     restart_service "resolvconf"
