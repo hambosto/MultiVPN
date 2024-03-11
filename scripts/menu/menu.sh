@@ -377,6 +377,8 @@ region="$(wget -q -T10 -O- ipinfo.io/region)"
 display_banner
 
 echo -e "------------------------------------------------------------------------------------------------"
+echo -e "                                      Server Information"
+echo -e "------------------------------------------------------------------------------------------------"
 echo -e "Date          : $date_today"
 echo -e "Domain        : $domain"
 
@@ -423,6 +425,8 @@ if [[ -z "${org}" ]]; then
     echo -e "Region        : No ISP detected"
 fi
 echo -e "------------------------------------------------------------------------------------------------"
+echo -e "                                      Bandwidth Monitoring"
+echo -e "------------------------------------------------------------------------------------------------"
 echo -e "Daily Bandwidth:"
 echo -e "↑↑ Upload     : $today_upload"
 echo -e "↓↓ Download   : $today_download"
@@ -433,10 +437,14 @@ echo -e "↑↑ Upload     : $month_upload"
 echo -e "↓↓ Download   : $month_download"
 echo -e "≈≈ Total      : $month_total"
 echo -e "------------------------------------------------------------------------------------------------"
+echo -e "                                        Services Status"
+echo -e "------------------------------------------------------------------------------------------------"
 echo -e "VPN Service:"
 echo -e "SSH WS        : $status_ssh"
 echo -e "Nginx         : $status_nginx"
 echo -e "V2Ray         : $status_xray"
+echo -e "------------------------------------------------------------------------------------------------"
+echo -e "                                             Menu"
 echo -e "------------------------------------------------------------------------------------------------"
 echo -e "Menu Options:"
 echo -e "1. SSH Websocket       5. Restart VPN Service   9.  Speedtest VPS"
@@ -508,4 +516,3 @@ case $menu in
         menu
         ;;
 esac
-
