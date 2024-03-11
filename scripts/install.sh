@@ -75,7 +75,7 @@ setup_domains
 # Install components
 install_component "VPN Dependencies" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/scripts/setup/install-vpn.sh"
 install_component "XRAY Core" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/scripts/setup/install-xray.sh"
-install_component "SSH Tunnel" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/scripts/setup/install-ssh.sh"
+# install_component "SSH Tunnel" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/scripts/setup/install-ssh.sh"
 install_component "Menu" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/scripts/setup/install-menu.sh"
 
 # Display final information
