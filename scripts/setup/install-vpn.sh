@@ -64,7 +64,31 @@ install_badvpn() {
 # Function to install Node.js
 install_nodejs() {
     echo "Installing Node.js..."
-    curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - && apt-get install -y nodejs
+    #!/bin/bash
+
+    # Check if /etc/os-release file exists
+    if [ -e /etc/os-release ]; then
+        # Source the /etc/os-release file
+        source /etc/os-release
+
+        # Check if the ID variable contains "debian" or "ubuntu"
+        if [[ "$ID" == "debian" ]]; then
+            # Install Node.js for Debian
+            curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - &&\
+            apt-get install -y nodejs
+        elif [[ "$ID" == "ubuntu" ]]; then
+            # Install Node.js for Ubuntu
+            curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - &&\
+            sudo apt-get install -y nodejs
+        else
+            echo "Unsupported operating system."
+            exit 1
+        fi
+    else
+        echo "Unable to determine the operating system."
+        exit 1
+    fi
+
     echo "Node.js installation complete."
 }
 
