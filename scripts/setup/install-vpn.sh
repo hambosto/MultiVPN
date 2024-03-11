@@ -129,7 +129,18 @@ update_and_upgrade() {
     apt-get remove --purge ufw firewalld exim4 -y
 
     # Install necessary packages
-    apt install wget curl netfilter-persistent xz-utils sed gnupg bc apt-transport-https cmake build-essential dropbear cron -y
+    apt install wget -y
+    apt install curl -y
+    apt install netfilter-persistent -y
+    apt install xz-utils -y
+    apt install sed -y
+    apt install gnupg -y
+    apt install bc -y
+    apt install apt-transport-https -y
+    apt install cmake -y
+    apt install build-essential -y
+    apt install dropbear -y
+    apt install cron -y
 
     # Set timezone
     ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
@@ -212,7 +223,9 @@ block_torrent_and_p2p_traffic() {
 # Function to install resolvconf service
 configure_dns_resolution() {
     echo "Installing necessary packages (resolvconf, network-manager, dnsutils)..."
-    apt install resolvconf network-manager dnsutils -y
+    apt install resolvconf -y
+    apt install network-manager -y
+    apt install dnsutils -y
 
     echo "Starting and enabling DNS resolution services..."
     enable_and_start_service "resolvconf"
