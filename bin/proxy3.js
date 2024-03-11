@@ -1,102 +1,70 @@
-/*
-* Proxy Bridge
-* Copyright PANCHO7532 - P7COMUnications LLC (c) 2021
-* Dedicated to Emanuel Miranda, for giving me the idea to make this :v
-*/
-const net = require('net');
-const stream = require('stream');
-const util = require('util');
-var dhost = "127.0.0.1";
-var dport = "";
-var mainPort = "";
-var outputFile = "outputFile.txt";
-var packetsToSkip = 0;
-var gcwarn = true;
-for(c = 0; c < process.argv.length; c++) {
-    switch(process.argv[c]) {
-        case "-skip":
-            packetsToSkip = process.argv[c + 1];
-            break;
-        case "-dhost":
-            dhost = process.argv[c + 1];
-            break;
-        case "-dport":
-            dport = process.argv[c + 1];
-            break;
-        case "-mport":
-            mainPort = process.argv[c + 1];
-            break;
-        case "-o":
-            outputFile = process.argv[c + 1];
-            break;
-    }
-}
-function gcollector() {
-    if(!global.gc && gcwarn) {
-        console.log("[WARNING] - Garbage Collector isn't enabled! Memory leaks may occur.");
-        gcwarn = false;
-        return;
-    } else if(global.gc) {
-        global.gc();
-        return;
-    } else {
-        return;
-    }
-}
-function parseRemoteAddr(raddr) {
-    if(raddr.toString().indexOf("ffff") != -1) {
-        //is IPV4 address
-        return raddr.substring(7, raddr.length);
-    } else {
-        return raddr;
-    }
-}
-setInterval(gcollector, 1000);
+// Socket Bridge for SSH
+// https://github.com/hambosto/MultiVPN
+
+const net = require("net");
+const DESTINATION_HOST = "127.0.0.1";
+const DESTINATION_PORT = 189;
+const LISTEN_PORT = 8888;
+
 const server = net.createServer();
-server.on('connection', function(socket) {
-    var packetCount = 0;
-    //var handshakeMade = false;
+
+// Event listener for incoming client connections
+server.on('connection', (socket) => {
+    let packetCount = 0;
+
+    // Respond to the client with the HTTP 101 status
     socket.write("HTTP/1.1 101 Switching Protocols\r\nContent-Length: 1048576000000\r\n\r\n");
-    console.log("[INFO] - Connection received from " + socket.remoteAddress + ":" + socket.remotePort);
-    var conn = net.createConnection({host: dhost, port: dport});
-    socket.on('data', function(data) {
-        //pipe sucks
-        if(packetCount < packetsToSkip) {
-            //console.log("---c1");
-            packetCount++;
-        } else if(packetCount == packetsToSkip) {
-            //console.log("---c2");
-            conn.write(data);
+
+    console.log(`[INFO] - Connection received from ${socket.remoteAddress}:${socket.remotePort}`);
+
+    // Create a connection to the destination server
+    const connection = net.createConnection({ host: DESTINATION_HOST, port: DESTINATION_PORT });
+
+    // Set larger buffer sizes for higher bandwidth
+    socket.setNoDelay(true);
+    connection.setNoDelay(true);
+
+    // Event listener for data received from the client
+    socket.on('data', (data) => {
+        if (packetCount >= 0) {
+            // Forward data from the client to the destination server
+            connection.write(data);
         }
-        if(packetCount > packetsToSkip) {
-            //console.log("---c3");
-            packetCount = packetsToSkip;
-        }
-        //conn.write(data);
+        packetCount++;
     });
-    conn.on('data', function(data) {
-        //pipe sucks x2
+
+    // Event listener for data received from the destination server
+    connection.on('data', (data) => {
+        // Forward data from the destination server to the client
         socket.write(data);
     });
-    socket.once('data', function(data) {
-        /*
-        * Nota para mas tarde, resolver que diferencia hay entre .on y .once
-        */
+
+    // Handle the 'data' event only once for the initial interaction
+    socket.once('data', () => {
+        // Perform any initial setup if needed
     });
-    socket.on('error', function(error) {
-        console.log("[SOCKET] - read " + error + " from " + socket.remoteAddress + ":" + socket.remotePort);
-        conn.destroy();
+
+    // Event listener for errors on the client socket
+    socket.on('error', (error) => {
+        console.log(`[SOCKET] - Error reading from ${socket.remoteAddress}:${socket.remotePort}: ${error}`);
+        connection.destroy();
     });
-    conn.on('error', function(error) {
-        console.log("[REMOTE] - read " + error);
+
+    // Event listener for errors on the destination server connection
+    connection.on('error', (error) => {
+        console.log(`[REMOTE] - Error reading from ${DESTINATION_HOST}:${DESTINATION_PORT}: ${error}`);
         socket.destroy();
     });
-    socket.on('close', function() {
-        console.log("[INFO] - Connection terminated for " + socket.remoteAddress + ":" + socket.remotePort);
-        conn.destroy();
+
+    // Event listener for the client socket close event
+    socket.on('close', () => {
+        console.log(`[INFO] - Connection terminated for ${socket.remoteAddress}:${socket.remotePort}`);
+        connection.destroy();
     });
 });
-server.listen(mainPort, function(){
-    console.log("[INFO] - Server started on port: " + mainPort);
-    console.log("[INFO] - Redirecting requests to: " + dhost + " at port " + dport);
+
+// Start the server and listen for incoming connections
+server.listen(LISTEN_PORT, () => {
+    console.log(`[INFO] - Server started on port: ${LISTEN_PORT}`);
+    console.log(`[INFO] - Redirecting requests to: ${DESTINATION_HOST} at port ${DESTINATION_PORT}`);
 });
