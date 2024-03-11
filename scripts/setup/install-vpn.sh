@@ -98,6 +98,7 @@ install_nodejs() {
 
 # Function to configure SSH
 configure_ssh() {
+    apt install dropbear -y
     echo "Configuring SSH..."
 
     sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
@@ -143,7 +144,6 @@ update_and_upgrade() {
     apt install apt-transport-https -y
     apt install cmake -y
     apt install build-essential -y
-    apt install dropbear -y
     apt install cron -y
 
     # Set timezone
@@ -305,7 +305,7 @@ install_nginx
 install_vnstat
 install_fail2ban_and_dos_deflate
 install_badvpn
-configure_ssh
+# configure_ssh
 block_torrent_and_p2p_traffic
 configure_dns_resolution
 configure_cron_jobs
