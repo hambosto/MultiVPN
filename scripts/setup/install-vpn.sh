@@ -305,7 +305,7 @@ install_nginx
 install_vnstat
 install_fail2ban_and_dos_deflate
 install_badvpn
-# configure_ssh
+configure_ssh
 block_torrent_and_p2p_traffic
 configure_dns_resolution
 configure_cron_jobs
