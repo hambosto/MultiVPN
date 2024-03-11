@@ -120,18 +120,19 @@ configure_ssh() {
 
 # Function to update and upgrade the system
 update_and_upgrade() {
+    DEBIAN_FRONTEND=noninteractive
     apt update -y
     apt upgrade -y
     apt dist-upgrade -y
 
-    apt-get remove --purge ufw firewalld -y
-    apt-get remove --purge exim4 -y
+    # Remove unwanted packages
+    apt-get remove --purge ufw firewalld exim4 -y
 
-    apt install wget curl netfilter-persistent xz-utils -y
+    # Install necessary packages
+    apt install wget curl netfilter-persistent xz-utils sed gnupg bc apt-transport-https cmake build-essential dropbear cron -y
 
+    # Set timezone
     ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
-
-    apt install sed gnupg bc apt-transport-https cmake build-essential dropbear cron -y
 }
 
 # Function to install Nginx
