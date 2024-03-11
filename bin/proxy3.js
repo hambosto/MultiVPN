@@ -3,7 +3,7 @@
 
 const net = require("net");
 const DESTINATION_HOST = "127.0.0.1";
-const DESTINATION_PORT = 189;
+const DESTINATION_PORT = 110;
 const LISTEN_PORT = 8888;
 
 const server = net.createServer();
