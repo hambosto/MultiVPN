@@ -219,16 +219,22 @@ configure_dns_resolution() {
     enable_and_start_service "systemd-resolved"
     enable_and_start_service "NetworkManager"
 
+    echo "Removing existing DNS configuration files..."
+    rm /etc/resolv.conf
+    rm /etc/resolvconf/resolv.conf.d/head
+
+    echo "Creating empty DNS configuration files..."
+    touch /etc/resolv.conf
+    touch /etc/resolvconf/resolv.conf.d/head
+
     echo "Setting DNS to Cloudflare in /root/current-dns.txt..."
     echo "Cloudflare DNS" > /root/current-dns.txt
     echo "nameserver 1.1.1.1" >> /etc/resolvconf/resolv.conf.d/head
     echo "nameserver 1.0.0.1" >> /etc/resolvconf/resolv.conf.d/head
 
-    rm /etc/resolv.conf
-    ln -s /run/resolvconf/resolv.conf /etc/resolv.conf
-
     echo "nameserver 1.1.1.1" >> /etc/resolv.conf
     echo "nameserver 1.0.0.1" >> /etc/resolv.conf
+    echo "nameserver 127.0.0.53" >> /etc/resolv.conf
 
     echo "Restarting DNS resolution services..."
     restart_service "resolvconf"
@@ -237,7 +243,6 @@ configure_dns_resolution() {
 
     echo "DNS resolution service installation and configuration completed successfully."
 }
-
 
 # Function to configure cron jobs
 configure_cron_jobs() {
