@@ -31,97 +31,97 @@ configure_rc_local() {
     
     enable_and_start_service "rc-local.service"
 
-    echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
-    sed -i '$ i\echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6' /etc/rc.local
+    # echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
+    # sed -i '$ i\echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6' /etc/rc.local
 
-    sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+    # sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
 }
 
-# Function to install BadVPN
-install_badvpn() {
-    echo "Installing BadVPN..."
+# # Function to install BadVPN
+# install_badvpn() {
+#     echo "Installing BadVPN..."
 
-    # Download and install BadVPN binary
-    download_file "https://raw.githubusercontent.com/powermx/badvpn/master/badvpn-udpgw" "/usr/bin/badvpn-udpgw"
-    chmod +x /usr/bin/badvpn-udpgw
-    echo "BadVPN binary installed successfully."
+#     # Download and install BadVPN binary
+#     download_file "https://raw.githubusercontent.com/powermx/badvpn/master/badvpn-udpgw" "/usr/bin/badvpn-udpgw"
+#     chmod +x /usr/bin/badvpn-udpgw
+#     echo "BadVPN binary installed successfully."
 
-    # Download and install systemd service file
-    download_file "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/udpgw-7300.service" "/etc/systemd/system/udpgw-7300.service"
-    echo "Systemd service file installed successfully."
+#     # Download and install systemd service file
+#     download_file "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/udpgw-7300.service" "/etc/systemd/system/udpgw-7300.service"
+#     echo "Systemd service file installed successfully."
 
-    # Reload systemd to recognize the new service file
-    systemctl daemon-reload
-    echo "Systemd daemon reloaded."
+#     # Reload systemd to recognize the new service file
+#     systemctl daemon-reload
+#     echo "Systemd daemon reloaded."
 
-    # Enable and start the BadVPN service
-    enable_and_start_service "udpgw-7300.service"
-    echo "BadVPN service enabled and started."
+#     # Enable and start the BadVPN service
+#     enable_and_start_service "udpgw-7300.service"
+#     echo "BadVPN service enabled and started."
 
-    # Restart the BadVPN service for changes to take effect
-    restart_service "udpgw-7300.service"
-    echo "BadVPN service restarted."
+#     # Restart the BadVPN service for changes to take effect
+#     restart_service "udpgw-7300.service"
+#     echo "BadVPN service restarted."
 
-    echo "BadVPN installation complete."
-}
+#     echo "BadVPN installation complete."
+# }
 
 # Function to install Node.js
-install_nodejs() {
-    echo "Installing Node.js..."
-    #!/bin/bash
+# install_nodejs() {
+#     echo "Installing Node.js..."
+#     #!/bin/bash
 
-    # Check if /etc/os-release file exists
-    if [ -e /etc/os-release ]; then
-        # Source the /etc/os-release file
-        source /etc/os-release
+#     # Check if /etc/os-release file exists
+#     if [ -e /etc/os-release ]; then
+#         # Source the /etc/os-release file
+#         source /etc/os-release
 
-        # Check if the ID variable contains "debian" or "ubuntu"
-        if [[ "$ID" == "debian" ]]; then
-            # Install Node.js for Debian
-            curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - &&\
-            apt-get install -y nodejs
-        elif [[ "$ID" == "ubuntu" ]]; then
-            # Install Node.js for Ubuntu
-            curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - &&\
-            sudo apt-get install -y nodejs
-        else
-            echo "Unsupported operating system."
-            exit 1
-        fi
-    else
-        echo "Unable to determine the operating system."
-        exit 1
-    fi
+#         # Check if the ID variable contains "debian" or "ubuntu"
+#         if [[ "$ID" == "debian" ]]; then
+#             # Install Node.js for Debian
+#             curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - &&\
+#             apt-get install -y nodejs
+#         elif [[ "$ID" == "ubuntu" ]]; then
+#             # Install Node.js for Ubuntu
+#             curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - &&\
+#             sudo apt-get install -y nodejs
+#         else
+#             echo "Unsupported operating system."
+#             exit 1
+#         fi
+#     else
+#         echo "Unable to determine the operating system."
+#         exit 1
+#     fi
 
-    echo "Node.js installation complete."
-}
+#     echo "Node.js installation complete."
+# }
 
 # Function to configure SSH
-configure_ssh() {
-    apt install dropbear -y
-    echo "Configuring SSH..."
+# configure_ssh() {
+#     apt install dropbear -y
+#     echo "Configuring SSH..."
 
-    sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
+#     # sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
 
-    sed -i 's/#Port 22/Port 22/g' /etc/ssh/sshd_config
+#     sed -i 's/#Port 22/Port 22/g' /etc/ssh/sshd_config
     
-    sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
-    sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=110/g' /etc/default/dropbear
+#     sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
+#     sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=110/g' /etc/default/dropbear
 
-    download_file "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/issue.net" "/etc/issue.net"
-    chmod +x /etc/issue.net
+#     download_file "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/issue.net" "/etc/issue.net"
+#     chmod +x /etc/issue.net
 
-    echo "Banner /etc/issue.net" >> /etc/ssh/sshd_config
-    sed -i 's@DROPBEAR_BANNER=""@DROPBEAR_BANNER="/etc/issue.net"@g' /etc/default/dropbear
+#     echo "Banner /etc/issue.net" >> /etc/ssh/sshd_config
+#     sed -i 's@DROPBEAR_BANNER=""@DROPBEAR_BANNER="/etc/issue.net"@g' /etc/default/dropbear
     
-    echo "/bin/false" >> /etc/shells
-    echo "/usr/sbin/nologin" >> /etc/shells
+#     echo "/bin/false" >> /etc/shells
+#     echo "/usr/sbin/nologin" >> /etc/shells
 
-    restart_service "dropbear"
-    restart_service "ssh"
+#     restart_service "dropbear"
+#     restart_service "ssh"
 
-    echo "SSH configured successfully."
-}
+#     echo "SSH configured successfully."
+# }
 
 # Function to update and upgrade the system
 update_and_upgrade() {
@@ -226,15 +226,15 @@ block_torrent_and_p2p_traffic() {
 
 # Function to install resolvconf service
 configure_dns_resolution() {
-    echo "Installing necessary packages (resolvconf, network-manager, dnsutils)..."
+    echo "Installing necessary packages (resolvconf)..."
     apt install resolvconf -y
-    apt install network-manager -y
-    apt install dnsutils -y
+    # apt install network-manager -y
+    # apt install dnsutils -y
 
     echo "Starting and enabling DNS resolution services..."
     enable_and_start_service "resolvconf"
-    enable_and_start_service "systemd-resolved"
-    enable_and_start_service "NetworkManager"
+    # enable_and_start_service "systemd-resolved"
+    # enable_and_start_service "NetworkManager"
 
     echo "Removing existing DNS configuration files..."
     rm /etc/resolv.conf
@@ -255,8 +255,8 @@ configure_dns_resolution() {
 
     echo "Restarting DNS resolution services..."
     restart_service "resolvconf"
-    restart_service "systemd-resolved"
-    restart_service "NetworkManager"
+    # restart_service "systemd-resolved"
+    # restart_service "NetworkManager"
 
     echo "DNS resolution service installation and configuration completed successfully."
 }
@@ -290,22 +290,15 @@ restart_services() {
     restart_service "vnstat"
 }
 
-# Function to clear command history and disable further recording
-clear_history_and_disable_recording() {
-    echo "Clearing command history and disabling further recording..."
-    history -c
-    echo "unset HISTFILE" >> /etc/profile
-}
-
 # Main execution starts here
 configure_rc_local
 update_and_upgrade
-install_nodejs
+# install_nodejs
 install_nginx
 install_vnstat
 install_fail2ban_and_dos_deflate
-install_badvpn
-configure_ssh
+# install_badvpn
+# configure_ssh
 block_torrent_and_p2p_traffic
 configure_dns_resolution
 configure_cron_jobs
