@@ -131,7 +131,7 @@ update_and_upgrade() {
 
     ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
 
-    apt install sed gnupg bc apt-transport-https cmake build-essential dropbear -y
+    apt install sed gnupg bc apt-transport-https cmake build-essential dropbear cron -y
 }
 
 # Function to install Nginx
@@ -225,6 +225,9 @@ configure_dns_resolution() {
 
     rm /etc/resolv.conf
     ln -s /run/resolvconf/resolv.conf /etc/resolv.conf
+
+    echo "nameserver 1.1.1.1" >> /etc/resolv.conf
+    echo "nameserver 1.0.0.1" >> /etc/resolv.conf
 
     echo "Restarting DNS resolution services..."
     restart_service "resolvconf"
