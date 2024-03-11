@@ -218,26 +218,31 @@ block_torrent_and_p2p_traffic() {
 configure_dns_resolution() {
     echo "Installing necessary packages (resolvconf, network-manager, dnsutils)..."
     apt install resolvconf network-manager dnsutils -y
+    
+    # still error on debian, idk why
+    if [ -f /etc/debian_version ]; then
+        rm -rf /etc/systemd/resolved.conf
 
-    rm -rf /etc/systemd/resolved.conf
+        echo "Downloading optimized resolved.conf with Cloudflare DNS..."
+        download_file "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/resolved.conf" "/etc/systemd/resolved.conf"
 
-    echo "Downloading optimized resolved.conf with Cloudflare DNS..."
-    download_file "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/resolved.conf" "/etc/systemd/resolved.conf"
-
-    echo "Setting DNS to Cloudflare in /root/current-dns.txt..."
-    echo "Cloudflare DNS" > /root/current-dns.txt
+        echo "Setting DNS to Cloudflare in /root/current-dns.txt..."
+        echo "Cloudflare DNS" >/root/current-dns.txt
+    fi
 
     echo "Starting and enabling DNS resolution services..."
     enable_and_start_service "resolvconf"
     enable_and_start_service "systemd-resolved"
     enable_and_start_service "NetworkManager"
 
-    echo "Configuring /etc/resolv.conf..."
-    rm -rf /etc/resolv.conf
-    rm -rf /etc/resolvconf/resolv.conf.d/head
+    if [ -f /etc/debian_version ]; then
+        echo "Configuring /etc/resolv.conf..."
+        rm -rf /etc/resolv.conf
+        rm -rf /etc/resolvconf/resolv.conf.d/head
 
-    echo "nameserver 127.0.0.53" >> /etc/resolv.conf
-    echo "" >> /etc/resolvconf/resolv.conf.d/head
+        echo "nameserver 127.0.0.53" >>/etc/resolv.conf
+        echo "" >>/etc/resolvconf/resolv.conf.d/head
+    fi
 
     echo "Restarting DNS resolution services..."
     restart_service "resolvconf"
@@ -246,6 +251,7 @@ configure_dns_resolution() {
 
     echo "DNS resolution service installation and configuration completed successfully."
 }
+
 
 # Function to configure cron jobs
 configure_cron_jobs() {
