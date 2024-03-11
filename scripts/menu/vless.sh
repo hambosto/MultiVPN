@@ -282,11 +282,11 @@ function add_vless() {
         ;;
     3)
         vless_tls="vless://${uuid}@${hostname}:${tls_port}?type=ws&encryption=none&security=tls&host=${domain}&path=/vless-tls&allowInsecure=1&sni=${hostname}#${username}"
-        vless_nonetls="vless://${uuid}@${hostname}:${none_tls_port}?type=ws&encryption=none&security=none&host=${domain}&path=/vless-tls#${username}"
+        vless_nonetls="vless://${uuid}@${hostname}:${none_tls_port}?type=ws&encryption=none&security=none&host=${domain}&path=/vless-nonetls#${username}"
         ;;
     *)
         vless_tls="vless://${uuid}@${domain}:${tls_port}?type=ws&encryption=none&security=tls&host=${hostname}&path=/vlessWsTLS&allowInsecure=1&sni=${hostname}#${username}"
-        vless_nonetls="vless://${uuid}@${domain}:${none_tls_port}?type=ws&encryption=none&security=none&host=${hostname}&path=/vlessWsNTLS#${username}"
+        vless_nonetls="vless://${uuid}@${domain}:${none_tls_port}?type=ws&encryption=none&security=none&host=${hostname}&path=/vless-nonetls#${username}"
         ;;
     esac
 
