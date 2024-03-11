@@ -41,22 +41,26 @@ configure_rc_local() {
 install_badvpn() {
     echo "Installing BadVPN..."
 
+    # Download and install BadVPN binary
     download_file "https://raw.githubusercontent.com/powermx/badvpn/master/badvpn-udpgw" "/usr/bin/badvpn-udpgw"
     chmod +x /usr/bin/badvpn-udpgw
-    
-    service_url="https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services"
-    for port in 7100 7200 7300; do
-        service_file="/etc/systemd/system/udpgw-${port}.service"
-        download_file "${service_url}/udpgw-${port}.service" "$service_file"
-    done
-    
-    systemctl daemon-reload
+    echo "BadVPN binary installed successfully."
 
-    for port in 7100 7200 7300; do
-        service_name="udpgw-${port}.service"
-        enable_and_start_service "$service_name"
-        restart_service "$service_name"
-    done
+    # Download and install systemd service file
+    download_file "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/services/udpgw-7300.service" "/etc/systemd/system/udpgw-7300.service"
+    echo "Systemd service file installed successfully."
+
+    # Reload systemd to recognize the new service file
+    systemctl daemon-reload
+    echo "Systemd daemon reloaded."
+
+    # Enable and start the BadVPN service
+    enable_and_start_service "udpgw-7300.service"
+    echo "BadVPN service enabled and started."
+
+    # Restart the BadVPN service for changes to take effect
+    restart_service "udpgw-7300.service"
+    echo "BadVPN service restarted."
 
     echo "BadVPN installation complete."
 }
@@ -101,7 +105,7 @@ configure_ssh() {
     sed -i 's/#Port 22/Port 22/g' /etc/ssh/sshd_config
     
     sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
-    sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=189/g' /etc/default/dropbear
+    sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=110/g' /etc/default/dropbear
 
     download_file "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/issue.net" "/etc/issue.net"
     chmod +x /etc/issue.net
