@@ -85,10 +85,12 @@ server.on('connection', function(socket) {
     });
     socket.on('error', function(error) {
         console.log("[SOCKET] - read " + error + " from " + socket.remoteAddress + ":" + socket.remotePort);
+        console.log(error);
         conn.destroy();
     });
     conn.on('error', function(error) {
         console.log("[REMOTE] - read " + error);
+        console.log(error);
         socket.destroy();
     });
     socket.on('close', function() {
