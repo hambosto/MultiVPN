@@ -93,12 +93,6 @@ setup_services_and_configs() {
         systemctl restart "$service" > /dev/null 2>&1
     done
 
-    # echo "Configuring iptables rules..."
-    # # iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport 442 -j ACCEPT
-    # # iptables -I INPUT -m state --state NEW -m udp -p udp --dport 442 -j ACCEPT
-    # # iptables-save > /etc/iptables.up.rules
-    # # netfilter-persistent save > /dev/null
-    # # netfilter-persistent reload > /dev/null
 }
 
 # Main execution starts here
