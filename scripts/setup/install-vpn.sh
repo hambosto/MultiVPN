@@ -121,22 +121,25 @@ configure_dns_resolution() {
     echo "Starting and enabling DNS resolution services..."
     enable_and_start_service "resolvconf"
 
-    echo "Removing existing DNS configuration files..."
-    rm /etc/resolv.conf
-    rm /etc/resolvconf/resolv.conf.d/head
+    # echo "Removing existing DNS configuration files..."
+    # rm /etc/resolv.conf
+    # rm /etc/resolvconf/resolv.conf.d/head
 
-    echo "Creating empty DNS configuration files..."
-    touch /etc/resolv.conf
-    touch /etc/resolvconf/resolv.conf.d/head
+    # echo "Creating empty DNS configuration files..."
+    # touch /etc/resolv.conf
+    # touch /etc/resolvconf/resolv.conf.d/head
 
     echo "Setting DNS to Cloudflare in /root/current-dns.txt..."
     echo "Cloudflare DNS" > /root/current-dns.txt
     echo "nameserver 1.1.1.1" >> /etc/resolvconf/resolv.conf.d/head
     echo "nameserver 1.0.0.1" >> /etc/resolvconf/resolv.conf.d/head
 
-    echo "nameserver 1.1.1.1" >> /etc/resolv.conf
-    echo "nameserver 1.0.0.1" >> /etc/resolv.conf
-    echo "nameserver 127.0.0.53" >> /etc/resolv.conf
+    # echo "nameserver 1.1.1.1" >> /etc/resolv.conf
+    # echo "nameserver 1.0.0.1" >> /etc/resolv.conf
+    # echo "nameserver 127.0.0.53" >> /etc/resolv.conf
+
+    resolvconf --enable-updates
+    resolvconf --u
 
     echo "Restarting DNS resolution services..."
     restart_service "resolvconf"
