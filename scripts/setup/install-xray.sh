@@ -65,12 +65,12 @@ generate_and_set_uuid() {
     wget -qO "$xray_config_dir/config.json" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/config.json"
 
     echo "Updating UUID in Xray configuration file..."
-    jq --arg uuid "$uuid" '.inbounds[1].settings.clients[0].id = $uuid' "$xray_config_dir/config.json" > "$xray_config_dir/config.json"
-    jq --arg uuid "$uuid" '.inbounds[2].settings.clients[0].id = $uuid' "$xray_config_dir/config.json" > "$xray_config_dir/config.json"
-    jq --arg uuid "$uuid" '.inbounds[3].settings.clients[0].id = $uuid' "$xray_config_dir/config.json" > "$xray_config_dir/config.json"
-    jq --arg uuid "$uuid" '.inbounds[4].settings.clients[0].id = $uuid' "$xray_config_dir/config.json" > "$xray_config_dir/config.json"
-    jq --arg uuid "$uuid" '.inbounds[5].settings.clients[0].password = $uuid' "$xray_config_dir/config.json" > "$xray_config_dir/config.json"
-    jq --arg uuid "$uuid" '.inbounds[6].settings.clients[0].password = $uuid' "$xray_config_dir/config.json" > "$xray_config_dir/config.json"
+    echo $(jq --arg uuid "$uuid" '.inbounds[1].settings.clients[0].id = $uuid' "$xray_config_dir/config.json") > "$xray_config_dir/config.json"
+    echo $(jq --arg uuid "$uuid" '.inbounds[2].settings.clients[0].id = $uuid' "$xray_config_dir/config.json") > "$xray_config_dir/config.json"
+    echo $(jq --arg uuid "$uuid" '.inbounds[3].settings.clients[0].id = $uuid' "$xray_config_dir/config.json") > "$xray_config_dir/config.json"
+    echo $(jq --arg uuid "$uuid" '.inbounds[4].settings.clients[0].id = $uuid' "$xray_config_dir/config.json") > "$xray_config_dir/config.json"
+    echo $(jq --arg uuid "$uuid" '.inbounds[5].settings.clients[0].password = $uuid' "$xray_config_dir/config.json") > "$xray_config_dir/config.json"
+    echo $(jq --arg uuid "$uuid" '.inbounds[6].settings.clients[0].password = $uuid' "$xray_config_dir/config.json") > "$xray_config_dir/config.json"
 
     echo "Creating users database for XRAY..."
     jq -n '{"vmess": [], "vless": [], "trojan": [], "trojan_tcp": [], "trojan_go": []}' > "$xray_config_dir/users.db"
