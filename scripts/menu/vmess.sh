@@ -232,6 +232,8 @@ function add_vmess() {
   config_tls="/usr/local/etc/xray/config.json"
   config_nonetls="/usr/local/etc/xray/vmess-nonetls.json"
 
+  _config="/usr/local/etc/xray/config.json"
+
   read -rp "Username: " -e username
   existing_user=$(jq -r --arg username "$username" '.vmess[] | select(.user == $username)' "$users_file")
 
@@ -263,8 +265,11 @@ function add_vmess() {
   expiration_date=$(date -d "$expiration_days days" +"%Y-%m-%d")
   today=$(date -d "0 days" +"%Y-%m-%d")
   echo $(jq --arg username "$username" --arg uuid "$uuid" --arg expiration_date "$expiration_date" '.vmess += [{"user": $username, "uuid": $uuid, "expiry": $expiration_date}]' $users_file) > $users_file
-  echo $(jq --arg username "$username" --arg uuid "$uuid" '.inbounds[0].settings.clients += [{"id": $uuid, "alterId": 0, "email": $username}]' $config_tls) > $config_tls
-  echo $(jq --arg username "$username" --arg uuid "$uuid" '.inbounds[1].settings.clients += [{"id": $uuid, "alterId": 0, "email": $username}]' $config_nonetls) > $config_nonetls
+  # echo $(jq --arg username "$username" --arg uuid "$uuid" '.inbounds[0].settings.clients += [{"id": $uuid, "alterId": 0, "email": $username}]' $config_tls) > $config_tls
+  # echo $(jq --arg username "$username" --arg uuid "$uuid" '.inbounds[1].settings.clients += [{"id": $uuid, "alterId": 0, "email": $username}]' $config_nonetls) > $config_nonetls
+
+  echo $(jq --arg username "$username" --arg uuid "$uuid" '.inbounds[1].settings.clients += [{"id": $uuid, "alterId": 0, "email": $username}]' $_config) > $_config
+  echo $(jq --arg username "$username" --arg uuid "$uuid" '.inbounds[2].settings.clients += [{"id": $uuid, "alterId": 0, "email": $username}]' $_config) > $_config
   
   systemctl restart xray.service
   systemctl restart xray@vmess-nonetls.service
