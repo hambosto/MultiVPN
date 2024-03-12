@@ -443,11 +443,9 @@ echo -e "-----------------------------------------------------------------------
 echo -e "                                             Menu"
 echo -e "------------------------------------------------------------------------------------------------"
 echo -e "Menu Options:"
-echo -e "1. VMESS Websocket     4. Restart VPN Service   7.  Change DNS"
-echo -e "2. VLESS Websocket     5. Change Domain         8.  Speedtest Network"
-echo -e "3. Trojan Websocket    6. Renew Domain SSL      9.  Optimize Network"
-echo -e "                                                10. System Status"
-echo -e "                                                11. Exit"
+echo -e "1.  VMESS Websocket    4.  Restart VPN Service   7.  Change DNS          10. System Status"
+echo -e "2.  VLESS Websocket    5.  Change Domain         8.  Speedtest Network   11. Users Online"
+echo -e "3.  Trojan Websocket   6.  Renew Domain SSL      9.  Optimize Network    12. Exit "
 echo -e "------------------------------------------------------------------------------------------------"
 
 # Read user input
@@ -496,6 +494,8 @@ case $menu in
         status
         ;;
     11)
+        clear;;
+    12)
         clear
         exit
         ;;
