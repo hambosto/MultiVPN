@@ -274,10 +274,10 @@ configure_cron_jobs() {
 # Function to clean up unnecessary files and packages
 cleanup() {
     echo "Cleaning up unnecessary files and packages..."
-    # apt autoclean -y
-    # apt -y remove --purge unscd
-    # apt-get -y --purge remove samba* apache2* bind9* sendmail*
-    # apt autoremove -y
+    apt autoclean -y
+    apt -y remove --purge unscd
+    apt-get -y --purge remove samba* apache2* bind9* sendmail*
+    apt autoremove -y
 }
 
 # Function to restart services
