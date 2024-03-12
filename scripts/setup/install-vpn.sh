@@ -138,9 +138,9 @@ update_and_upgrade() {
     apt install curl -y
     apt install netfilter-persistent -y
     apt install xz-utils -y
-    apt install sed -y
-    apt install gnupg -y
-    apt install bc -y
+    # apt install sed -y
+    # apt install gnupg -y
+    # apt install bc -y
     apt install apt-transport-https -y
     apt install cmake -y
     apt install build-essential -y
@@ -274,10 +274,10 @@ configure_cron_jobs() {
 # Function to clean up unnecessary files and packages
 cleanup() {
     echo "Cleaning up unnecessary files and packages..."
-    apt autoclean -y
-    apt -y remove --purge unscd
-    apt-get -y --purge remove samba* apache2* bind9* sendmail*
-    apt autoremove -y
+    # apt autoclean -y
+    # apt -y remove --purge unscd
+    # apt-get -y --purge remove samba* apache2* bind9* sendmail*
+    # apt autoremove -y
 }
 
 # Function to restart services
@@ -302,7 +302,7 @@ install_fail2ban_and_dos_deflate
 block_torrent_and_p2p_traffic
 configure_dns_resolution
 configure_cron_jobs
-cleanup
+# cleanup
 restart_services
 
 rm -f /root/install-vpn.sh
