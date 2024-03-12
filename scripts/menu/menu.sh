@@ -97,12 +97,12 @@ status() {
     echo "Cron           : $(service_status cron)"
     echo "Nginx          : $(service_status nginx)"
     echo "Fail2ban       : $(service_status fail2ban)"
-    echo "Vmess TLS      : $(service_status xray)"
-    echo "Vmess Non TLS  : $(service_status xray@vmess-nonetls)"
-    echo "Vless TLS      : $(service_status xray@vless-tls)"
-    echo "Vless Non TLS  : $(service_status xray@vless-nonetls)"
-    echo "Trojan TLS     : $(service_status xray@trojan-tls)"
-    echo "Trojan Non TLS : $(service_status xray@trojan-nonetls)"
+    echo "Xray           : $(service_status xray)"
+    # echo "Vmess Non TLS  : $(service_status xray@vmess-nonetls)"
+    # echo "Vless TLS      : $(service_status xray@vless-tls)"
+    # echo "Vless Non TLS  : $(service_status xray@vless-nonetls)"
+    # echo "Trojan TLS     : $(service_status xray@trojan-tls)"
+    # echo "Trojan Non TLS : $(service_status xray@trojan-nonetls)"
     echo "---------------------------------------------------------"
 
     read -n 1 -s -r -p "Press any key to go back to the menu"
@@ -121,11 +121,11 @@ restart() {
         cron
         nginx
         xray
-        xray@vmess-nonetls
-        xray@vless-tls
-        xray@vless-nonetls
-        xray@trojan-tls
-        xray@trojan-nonetls
+        # xray@vmess-nonetls
+        # xray@vless-tls
+        # xray@vless-nonetls
+        # xray@trojan-tls
+        # xray@trojan-nonetls
     )
 
     for service in "${services_to_restart[@]}"; do
