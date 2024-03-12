@@ -7,7 +7,6 @@ install_essentials() {
 
     echo "Installing essential packages..."
     apt install socat -y
-    apt install curl -y
     apt install jq -y
     apt install ntpdate -y
     apt install chrony -y
@@ -58,33 +57,27 @@ install_acme_and_ssl() {
 
 # Function to generate and set a UUID for XRAY configuration files
 generate_and_set_uuid() {
+    echo "Generating UUID..."
     uuid=$(cat /proc/sys/kernel/random/uuid)
     xray_config_dir="/usr/local/etc/xray"
 
-    # wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/config.json" | jq --arg uuid "$uuid" '.inbounds[1].settings.clients[0].id = $uuid | .inbounds[2].settings.clients[0].id = $uuid | .inbounds[3].settings.clients[0].id = $uuid | .inbounds[4].settings.clients[0].id = $uuid | .inbounds[5].settings.clients[0].password = $uuid | .inbounds[6].settings.clients[0].password = $uuid' > "$xray_config_dir/config.json"
-
-    
-
-    # wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vmess-tls.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/config.json"
-    # wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vmess-nonetls.json" | jq '.inbounds[1].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/vmess-nonetls.json"
-    # wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vless-tls.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/vless-tls.json"
-    # wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vless-nonetls.json" | jq '.inbounds[1].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/vless-nonetls.json"
-    # wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-tls.json" | jq '.inbounds[0].settings.clients[0].password = "'$uuid'"' > "$xray_config_dir/trojan-tls.json"
-    # wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-nonetls.json" | jq '.inbounds[0].settings.clients[0].password = "'$uuid'"' > "$xray_config_dir/trojan-nonetls.json"
-
-
+    echo "Downloading Xray configuration file..."
     wget -qO "$xray_config_dir/config.json" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/config.json"
-    echo "$(jq --arg uuid "$uuid" '.inbounds[1].settings.clients[0].id = $uuid' "$xray_config_dir/config.json")" > "$xray_config_dir/config.json"
-    echo "$(jq --arg uuid "$uuid" '.inbounds[2].settings.clients[0].id = $uuid' "$xray_config_dir/config.json")" > "$xray_config_dir/config.json"
-    echo "$(jq --arg uuid "$uuid" '.inbounds[3].settings.clients[0].id = $uuid' "$xray_config_dir/config.json")" > "$xray_config_dir/config.json"
-    echo "$(jq --arg uuid "$uuid" '.inbounds[4].settings.clients[0].id = $uuid' "$xray_config_dir/config.json")" > "$xray_config_dir/config.json"
-    echo "$(jq --arg uuid "$uuid" '.inbounds[5].settings.clients[0].password = $uuid' "$xray_config_dir/config.json")" > "$xray_config_dir/config.json"
-    echo "$(jq --arg uuid "$uuid" '.inbounds[6].settings.clients[0].password = $uuid' "$xray_config_dir/config.json")" > "$xray_config_dir/config.json"
 
-    
+    echo "Updating UUID in Xray configuration file..."
+    jq --arg uuid "$uuid" '.inbounds[1].settings.clients[0].id = $uuid' "$xray_config_dir/config.json" > "$xray_config_dir/config.json"
+    jq --arg uuid "$uuid" '.inbounds[2].settings.clients[0].id = $uuid' "$xray_config_dir/config.json" > "$xray_config_dir/config.json"
+    jq --arg uuid "$uuid" '.inbounds[3].settings.clients[0].id = $uuid' "$xray_config_dir/config.json" > "$xray_config_dir/config.json"
+    jq --arg uuid "$uuid" '.inbounds[4].settings.clients[0].id = $uuid' "$xray_config_dir/config.json" > "$xray_config_dir/config.json"
+    jq --arg uuid "$uuid" '.inbounds[5].settings.clients[0].password = $uuid' "$xray_config_dir/config.json" > "$xray_config_dir/config.json"
+    jq --arg uuid "$uuid" '.inbounds[6].settings.clients[0].password = $uuid' "$xray_config_dir/config.json" > "$xray_config_dir/config.json"
+
     echo "Creating users database for XRAY..."
     jq -n '{"vmess": [], "vless": [], "trojan": [], "trojan_tcp": [], "trojan_go": []}' > "$xray_config_dir/users.db"
+
+    echo "UUID generation and Xray configuration completed successfully."
 }
+
 
 # Function to set up services and configurations
 setup_services_and_configs() {
@@ -105,16 +98,6 @@ setup_services_and_configs() {
     systemctl enable nginx > /dev/null 2>&1
     systemctl start nginx > /dev/null 2>&1
     systemctl restart nginx > /dev/null 2>&1
-
-    # services=("xray.service" "xray@vmess-nonetls.service" "xray@vless-tls.service" "xray@vless-nonetls.service" "xray@trojan-tls.service" "xray@trojan-nonetls.service" "nginx")
-
-    # for service in "${services[@]}"; do
-    #     echo -e "Restarting $service..."
-    #     systemctl enable "$service" > /dev/null 2>&1
-    #     systemctl start "$service" > /dev/null 2>&1
-    #     systemctl restart "$service" > /dev/null 2>&1
-    # done
-
 }
 
 # Main execution starts here
