@@ -27,9 +27,6 @@ update_and_upgrade() {
     apt upgrade -y
     apt dist-upgrade -y
 
-    # Remove unwanted packages
-    apt-get remove --purge ufw firewalld exim4 -y
-
     # Install necessary packages
     apt install wget -y
     apt install curl -y
@@ -157,15 +154,6 @@ configure_cron_jobs() {
 
     echo "Restarting cron service..."
     restart_service "cron"
-}
-
-# Function to clean up unnecessary files and packages
-cleanup() {
-    echo "Cleaning up unnecessary files and packages..."
-    apt autoclean -y
-    apt -y remove --purge unscd
-    apt-get -y --purge remove samba* apache2* bind9* sendmail*
-    apt autoremove -y
 }
 
 # Function to restart services
