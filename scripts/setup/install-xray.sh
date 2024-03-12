@@ -61,13 +61,8 @@ generate_and_set_uuid() {
     uuid=$(cat /proc/sys/kernel/random/uuid)
     xray_config_dir="/usr/local/etc/xray"
 
-    # wget -qO "$xray_config_dir/config.json" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/config.json"
-    # cat "$xray_config_dir/config.json" | jq '.inbounds[1].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/config.json"
-    # cat "$xray_config_dir/config.json" | jq '.inbounds[2].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/config.json"
-    # cat "$xray_config_dir/config.json" | jq '.inbounds[3].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/config.json"
-    # cat "$xray_config_dir/config.json" | jq '.inbounds[4].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/config.json"
-    # cat "$xray_config_dir/config.json" | jq '.inbounds[5].settings.clients[0].password = "'$uuid'"' > "$xray_config_dir/config.json"
-    # cat "$xray_config_dir/config.json" | jq '.inbounds[6].settings.clients[0].password = "'$uuid'"' > "$xray_config_dir/config.json"
+    # wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/config.json" | jq --arg uuid "$uuid" '.inbounds[1].settings.clients[0].id = $uuid | .inbounds[2].settings.clients[0].id = $uuid | .inbounds[3].settings.clients[0].id = $uuid | .inbounds[4].settings.clients[0].id = $uuid | .inbounds[5].settings.clients[0].password = $uuid | .inbounds[6].settings.clients[0].password = $uuid' > "$xray_config_dir/config.json"
+
     
 
     wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/vmess-tls.json" | jq '.inbounds[0].settings.clients[0].id = "'$uuid'"' > "$xray_config_dir/config.json"
