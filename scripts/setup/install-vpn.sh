@@ -22,14 +22,12 @@ restart_service() {
 
 # Function to update and upgrade the system
 update_and_upgrade() {
-    DEBIAN_FRONTEND=noninteractive
     apt update -y
     apt upgrade -y
     apt dist-upgrade -y
 
     # Install necessary packages
     apt install netfilter-persistent -y
-    apt install xz-utils -y
     apt install apt-transport-https -y
     apt install cmake -y
     apt install build-essential -y
@@ -41,15 +39,21 @@ update_and_upgrade() {
 
 # Function to install Nginx
 install_nginx() {
+    echo "Installing Nginx..."
     apt install nginx -y
 
+    echo "Removing default Nginx configuration files..."
     rm /etc/nginx/sites-enabled/default
     rm /etc/nginx/sites-available/default
 
+    echo "Downloading Nginx configuration files from GitHub..."
     download_file "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/nginx.conf" "/etc/nginx/nginx.conf"
     download_file "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/webserver.conf" "/etc/nginx/conf.d/webserver.conf"
 
+    echo "Restarting Nginx..."
     restart_service "nginx"
+
+    echo "Nginx installation and configuration completed successfully."
 }
 
 # Function to install vnstat
@@ -121,25 +125,12 @@ configure_dns_resolution() {
     echo "Starting and enabling DNS resolution services..."
     enable_and_start_service "resolvconf"
 
-    # echo "Removing existing DNS configuration files..."
-    # rm /etc/resolv.conf
-    # rm /etc/resolvconf/resolv.conf.d/head
-
-    # echo "Creating empty DNS configuration files..."
-    # touch /etc/resolv.conf
-    # touch /etc/resolvconf/resolv.conf.d/head
-
     echo "Setting DNS to Cloudflare in /root/current-dns.txt..."
     echo "Cloudflare DNS" > /root/current-dns.txt
     echo "nameserver 1.1.1.1" >> /etc/resolvconf/resolv.conf.d/head
     echo "nameserver 1.0.0.1" >> /etc/resolvconf/resolv.conf.d/head
 
-    # echo "nameserver 1.1.1.1" >> /etc/resolv.conf
-    # echo "nameserver 1.0.0.1" >> /etc/resolv.conf
-    # echo "nameserver 127.0.0.53" >> /etc/resolv.conf
-
     resolvconf --enable-updates
-    resolvconf --u
 
     echo "Restarting DNS resolution services..."
     restart_service "resolvconf"
