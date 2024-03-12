@@ -15,10 +15,15 @@ check_installed() {
     if [ -f "/usr/local/etc/xray/domain" ]; then
         clear
         echo "Xray Script is already installed."
-        echo "To make changes, please rebuild your VPS first."
-        echo "Visit https://github.com/hambosto/MultiVPN for more documentation."
+        echo "To make changes or reinstall, please rebuild your VPS by following these steps:"
+        echo "1. Back up your important data and configurations."
+        echo "2. Rebuild your VPS or create a new instance."
+        echo "3. After rebuilding, you can reinstall the Xray Script."
+        echo "For detailed instructions, visit: https://github.com/hambosto/MultiVPN"
+        echo "If you need assistance, refer to the documentation or seek help in the community."
     fi
 }
+
 
 # Function to set up username and domain
 setup_domains() {
@@ -75,7 +80,6 @@ setup_domains
 # Install components
 install_component "VPN Dependencies" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/scripts/setup/install-vpn.sh"
 install_component "XRAY Core" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/scripts/setup/install-xray.sh"
-# install_component "SSH Tunnel" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/scripts/setup/install-ssh.sh"
 install_component "Menu" "https://raw.githubusercontent.com/hambosto/MultiVPN/main/scripts/setup/install-menu.sh"
 
 # Display final information
