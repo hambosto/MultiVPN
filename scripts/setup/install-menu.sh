@@ -26,7 +26,7 @@ echo "Menu scripts installed."
 # Download and install utility scripts
 echo "Downloading and installing utility scripts..."
 wget -qO /usr/local/sbin/cleaner https://raw.githubusercontent.com/hambosto/MultiVPN/main/tools/cleaner.sh && chmod +x /usr/local/sbin/cleaner
-wget -qO /usr/local/sbin/tcp-bbr https://raw.githubusercontent.com/hambosto/MultiVPN/main/tools/bbr.sh && chmod +x /usr/local/sbin/bbr
+wget -qO /usr/local/sbin/bbr https://raw.githubusercontent.com/hambosto/MultiVPN/main/tools/bbr.sh && chmod +x /usr/local/sbin/bbr
 wget -qO /usr/local/sbin/expiry https://raw.githubusercontent.com/hambosto/MultiVPN/main/tools/expiry.sh && chmod +x /usr/local/sbin/expiry
 echo "Utility scripts installed."
 
