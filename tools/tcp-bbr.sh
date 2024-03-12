@@ -1,78 +1,87 @@
 #!/bin/bash
 
-add_to_new_line() {
-    if [ "$(tail -n1 "$1" | wc -l)" == "0" ]; then
-        echo "" >> "$1"
-    fi
-    echo "$2" >> "$1"
+_os_full() {
+    [ -f /etc/redhat-release ] && awk '{print ($1,$3~/^[0-9]/?$3:$4)}' /etc/redhat-release && return
+    [ -f /etc/os-release ] && awk -F'[= "]' '/PRETTY_NAME/{print $3,$4,$5}' /etc/os-release && return
+    [ -f /etc/lsb-release ] && awk -F'[="]+' '/DESCRIPTION/{print $2}' /etc/lsb-release && return
 }
 
-check_and_add_line() {
-    if [ -z "$(grep "$2" "$1")" ]; then
-        add_to_new_line "$1" "$2"
+get_char() {
+    SAVEDSTTY=$(stty -g)
+    stty -echo
+    stty cbreak
+    dd if=/dev/tty bs=1 count=1 2> /dev/null
+    stty -raw
+    stty echo
+    stty "$SAVEDSTTY"
+}
+
+check_bbr_status() {
+    local param
+
+    param=$(sysctl -n net.ipv4.tcp_congestion_control 2>/dev/null)
+
+    if [[ "${param}" == "bbr" ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+
+sysctl_config() {
+    sed -i '/net.core.default_qdisc/d' /etc/sysctl.conf
+    sed -i '/net.ipv4.tcp_congestion_control/d' /etc/sysctl.conf
+    echo "net.core.default_qdisc = fq" >> /etc/sysctl.conf
+    echo "net.ipv4.tcp_congestion_control = bbr" >> /etc/sysctl.conf
+    sysctl -p >/dev/null 2>&1
+}
+
+reboot_os() {
+    echo
+    echo "The system needs to reboot."
+    read -p "Do you want to restart system? [y/n]" is_reboot
+    if [[ ${is_reboot} == "y" || ${is_reboot} == "Y" ]]; then
+        reboot
+    else
+        echo "Reboot has been canceled..."
+        exit 0
     fi
 }
 
 install_bbr() {
-    clear
-    echo "Installing TCP_BBR..."
-    
-    if lsmod | grep -q bbr; then
-        echo "TCP_BBR is already installed."
-        return 1
+	if check_bbr_status; then
+        echo
+        echo "TCP BBR has already been enabled. nothing to do..."
+        exit 0
     fi
-
-    modprobe tcp_bbr
-    add_to_new_line "/etc/modules-load.d/modules.conf" "tcp_bbr"
-    add_to_new_line "/etc/sysctl.conf" "net.core.default_qdisc = fq"
-    add_to_new_line "/etc/sysctl.conf" "net.ipv4.tcp_congestion_control = bbr"
-    sysctl -p
-
-    if sysctl net.ipv4.tcp_available_congestion_control | grep -q bbr &&
-       sysctl net.ipv4.tcp_congestion_control | grep -q bbr &&
-       lsmod | grep -q "tcp_bbr"; then
-        echo "TCP_BBR Installed Successfully."
-    else
-        echo "Failed to install TCP_BBR."
-    fi
+	sysctl_config
+	reboot_os
 }
 
-optimize_parameters() {
-    echo "Optimizing Parameters..."
-    
-    check_and_add_line "/etc/security/limits.conf" "* soft nofile 51200"
-    check_and_add_line "/etc/security/limits.conf" "* hard nofile 51200"
-    check_and_add_line "/etc/security/limits.conf" "root soft nofile 51200"
-    check_and_add_line "/etc/security/limits.conf" "root hard nofile 51200"
-    check_and_add_line "/etc/sysctl.conf" "fs.file-max = 51200"
-    check_and_add_line "/etc/sysctl.conf" "net.core.rmem_max = 67108864"
-    check_and_add_line "/etc/sysctl.conf" "net.core.wmem_max = 67108864"
-    check_and_add_line "/etc/sysctl.conf" "net.core.netdev_max_backlog = 250000"
-    check_and_add_line "/etc/sysctl.conf" "net.core.somaxconn = 4096"
-    check_and_add_line "/etc/sysctl.conf" "net.ipv4.tcp_syncookies = 1"
-    check_and_add_line "/etc/sysctl.conf" "net.ipv4.tcp_tw_reuse = 1"
-    check_and_add_line "/etc/sysctl.conf" "net.ipv4.tcp_fin_timeout = 30"
-    check_and_add_line "/etc/sysctl.conf" "net.ipv4.tcp_keepalive_time = 1200"
-    check_and_add_line "/etc/sysctl.conf" "net.ipv4.ip_local_port_range = 10000 65000"
-    check_and_add_line "/etc/sysctl.conf" "net.ipv4.tcp_max_syn_backlog = 8192"
-    check_and_add_line "/etc/sysctl.conf" "net.ipv4.tcp_max_tw_buckets = 5000"
-    check_and_add_line "/etc/sysctl.conf" "net.ipv4.tcp_fastopen = 3"
-    check_and_add_line "/etc/sysctl.conf" "net.ipv4.tcp_mem = 25600 51200 102400"
-    check_and_add_line "/etc/sysctl.conf" "net.ipv4.tcp_rmem = 4096 87380 67108864"
-    check_and_add_line "/etc/sysctl.conf" "net.ipv4.tcp_wmem = 4096 65536 67108864"
-    check_and_add_line "/etc/sysctl.conf" "net.ipv4.tcp_mtu_probing = 1"
-    
-    echo "Optimization of Parameters Done."
+cur_dir="$(cd -P -- "$(dirname -- "$0")" && pwd -P)"
 
-    read -rp "Reboot Your System Now? (y/n): " menu_num
-    case $menu_num in
-        Y | y) clear ; reboot ;;
-        N | n) clear ;;
-        *) clear ; reboot ;;
-    esac
-}
+if [[ $EUID -ne 0 ]]; then
+    echo "This script must be run as root"
+    exit 1
+fi
 
-display_banner
-install_bbr
-optimize_parameters
-rm -f /root/tcp-bbr.sh
+opsy=$( _os_full )
+arch=$( uname -m )
+lbit=$( getconf LONG_BIT )
+kern=$( uname -r )
+
+
+clear
+echo "---------- System Information ----------"
+echo " OS      : $opsy"
+echo " Arch    : $arch ($lbit Bit)"
+echo " Kernel  : $kern"
+echo "----------------------------------------"
+echo " Automatically enable TCP BBR script"
+echo "----------------------------------------"
+echo
+echo "Press any key to start...or Press Ctrl+C to cancel"
+char=$(get_char)
+
+install_bbr 2>&1 | tee "${cur_dir}"/install_bbr.log
