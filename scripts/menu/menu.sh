@@ -97,7 +97,6 @@ status() {
     echo "Cron           : $(service_status cron)"
     echo "Nginx          : $(service_status nginx)"
     echo "Fail2ban       : $(service_status fail2ban)"
-    echo "SSH Websocket  : $(service_status dropbear-websocket)"
     echo "Vmess TLS      : $(service_status xray)"
     echo "Vmess Non TLS  : $(service_status xray@vmess-nonetls)"
     echo "Vless TLS      : $(service_status xray@vless-tls)"
@@ -122,7 +121,6 @@ restart() {
         cron
         nginx
         xray
-        dropbear-websocket
         xray@vmess-nonetls
         xray@vless-tls
         xray@vless-nonetls
@@ -289,7 +287,6 @@ get_status() {
 
 status_nginx=$(get_status "nginx")
 status_xray=$(get_status "xray")
-status_ssh=$(get_status "dropbear-websocket")
 
 ip_address=$(curl -s icanhazip.com/ip)
 
@@ -440,18 +437,17 @@ echo -e "-----------------------------------------------------------------------
 echo -e "                                        Services Status"
 echo -e "------------------------------------------------------------------------------------------------"
 echo -e "VPN Service:"
-echo -e "SSH WS        : $status_ssh"
 echo -e "Nginx         : $status_nginx"
-echo -e "V2Ray         : $status_xray"
+echo -e "XRAY          : $status_xray"
 echo -e "------------------------------------------------------------------------------------------------"
 echo -e "                                             Menu"
 echo -e "------------------------------------------------------------------------------------------------"
 echo -e "Menu Options:"
-echo -e "1. SSH Websocket       5. Restart VPN Service   9.  Speedtest VPS"
-echo -e "2. Vmess Websocket     6. Change Domain         10. Install TCP BBR"
-echo -e "3. Vless Websocket     7. Renew SSL             11. System Status"
-echo -e "4. Trojan Websocket    8. Change DNS            12. DNS Checker"
-echo -e "                                                13. Exit"
+echo -e "1. VMESS Websocket     4. Restart VPN Service   7.  Change DNS"
+echo -e "2. VLESS Websocket     5. Change Domain         8.  Speedtest Network"
+echo -e "3. Trojan Websocket    6. Renew Domain SSL      9.  Optimize Network"
+echo -e "                                                10. System Status"
+echo -e "                                                11. Exit"
 echo -e "------------------------------------------------------------------------------------------------"
 
 # Read user input
@@ -461,53 +457,45 @@ read -p "Select menu: " menu
 case $menu in
     1)
         clear
-        menu-ssh # for ssh, later.
+        menu-vmess
         ;;
     2)
         clear
-        menu-vmess
+        menu-vless
         ;;
     3)
         clear
-        menu-vless
+        menu-trojan
         ;;
     4)
         clear
-        menu-trojan
+        restart
         ;;
     5)
         clear
-        restart
+        change_domain
         ;;
     6)
         clear
-        change_domain
+        renew_ssl
         ;;
     7)
         clear
-        renew_ssl
+        change_dns
         ;;
     8)
         clear
-        change_dns
+        speedtest
         ;;
     9)
         clear
-        speedtest
+        tcp-bbr
         ;;
     10)
         clear
-        tcp-bbr
-        ;;
-    11)
-        clear
         status
         ;;
-    12)
-        clear
-        bash <(curl -L -s check.unlock.media) -E
-        ;;
-    13)
+    11)
         clear
         exit
         ;;
