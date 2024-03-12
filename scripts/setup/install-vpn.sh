@@ -28,8 +28,6 @@ update_and_upgrade() {
     apt dist-upgrade -y
 
     # Install necessary packages
-    apt install wget -y
-    apt install curl -y
     apt install netfilter-persistent -y
     apt install xz-utils -y
     apt install apt-transport-https -y
