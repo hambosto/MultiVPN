@@ -72,6 +72,16 @@ generate_and_set_uuid() {
     # wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-tls.json" | jq '.inbounds[0].settings.clients[0].password = "'$uuid'"' > "$xray_config_dir/trojan-tls.json"
     # wget -qO - "https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/xray/trojan-nonetls.json" | jq '.inbounds[0].settings.clients[0].password = "'$uuid'"' > "$xray_config_dir/trojan-nonetls.json"
 
+
+
+    # echo "$(jq --arg uuid "$uuid" '.inbounds[1].settings.clients[0].id = $uuid' "config.json")" > config.json
+    # echo "$(jq --arg uuid "$uuid" '.inbounds[2].settings.clients[0].id = $uuid' "config.json")" > config.json
+    # echo "$(jq --arg uuid "$uuid" '.inbounds[3].settings.clients[0].id = $uuid' "config.json")" > config.json
+    # echo "$(jq --arg uuid "$uuid" '.inbounds[4].settings.clients[0].id = $uuid' "config.json")" > config.json
+    # echo "$(jq --arg uuid "$uuid" '.inbounds[5].settings.clients[0].password = $uuid' "config.json")" > config.json
+    # echo "$(jq --arg uuid "$uuid" '.inbounds[6].settings.clients[0].password = $uuid' "config.json")" > config.json
+
+    
     echo "Creating users database for XRAY..."
     jq -n '{"vmess": [], "vless": [], "trojan": [], "trojan_tcp": [], "trojan_go": []}' > "$xray_config_dir/users.db"
 }
