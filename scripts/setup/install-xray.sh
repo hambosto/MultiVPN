@@ -6,13 +6,7 @@ install_essentials() {
     apt update -y && apt upgrade -y
 
     echo "Installing essential packages..."
-    apt install socat -y
-    apt install jq -y
-    apt install ntpdate -y
-    apt install chrony -y
-    apt install zip -y
-    apt install unzip -y
-    apt install netcat -y
+    apt install socat jq ntpdate chrony zip unzip netcat -y
 
     echo "Configuring and starting chrony..."
     timedatectl set-ntp true
