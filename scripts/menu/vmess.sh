@@ -71,7 +71,7 @@ function renew_vmess() {
         menu-vmess
     fi
 
-    read -p "Expired (days): " expiration_days
+    read -r -p "Expired (days): " expiration_days
     selected_index=$((client_number - 1))
     selected_user=$(jq -r --argjson index "$selected_index" '.vmess[$index]' "$users_file")
 
@@ -87,7 +87,6 @@ function renew_vmess() {
 
     
     systemctl restart xray.service
-    systemctl restart xray@none.service
     service cron restart
     clear
 
@@ -106,8 +105,7 @@ function delete_vmess() {
     clear
     
     users_file="/usr/local/etc/xray/users.db"
-    config_tls="/usr/local/etc/xray/config.json"]
-    config_nonetls="/usr/local/etc/xray/vmess-nonetls.json"
+    xray_config="/usr/local/etc/xray/config.json"
 
     num_clients=$(jq -r '.vmess | length' "$users_file")
 
@@ -139,12 +137,12 @@ function delete_vmess() {
     echo "$(jq --argjson index "$selected_index" '.vmess |= del(.[$index])' "$users_file")" > "$users_file"
 
     # Delete user from config.json
-    echo "$(jq --arg username "$username" '.inbounds[0].settings.clients = (.inbounds[0].settings.clients | map(select(.email != $username)))' "$config_tls")" > "$config_tls"
-    echo "$(jq --arg username "$username" '.inbounds[1].settings.clients = (.inbounds[1].settings.clients | map(select(.email != $username)))' "$config_nonetls")" > "$config_nonetls"
+    echo "$(jq --arg username "$username" '.inbounds[1].settings.clients = (.inbounds[1].settings.clients | map(select(.email != $username)))' "$xray_config")" > "$xray_config"
+    echo "$(jq --arg username "$username" '.inbounds[2].settings.clients = (.inbounds[2].settings.clients | map(select(.email != $username)))' "$xray_config")" > "$xray_config"
 
     # Uncomment the lines below if you want to restart services and delete files
     systemctl restart xray.service
-    systemctl restart xray@vmess-nonetls.service
+
     rm -f "/usr/local/etc/xray/$username-tls.json"
     rm -f "/usr/local/etc/xray/$username-nonetls.json"
 
@@ -181,7 +179,7 @@ function user_vmess() {
 
     read -rp "Select a client: " client_number
 
-    if [ -z $client_number ]; then
+    if [ -z "$client_number" ]; then
         clear
         menu-vmess
     fi
@@ -195,8 +193,8 @@ function user_vmess() {
     none_tls_port="80"
     domain=$(cat /usr/local/etc/xray/domain)
     today=$(date -d "0 days" +"%Y-%m-%d")
-    link_ws_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-tls.json)"
-    link_ws_none_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-nonetls.json)"
+    link_ws_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/"$username"-tls.json)"
+    link_ws_none_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/"$username"-nonetls.json)"
 
     # clear
     echo "VMESS WEBSOCKET"
@@ -229,10 +227,7 @@ function add_vmess() {
   domain=$(cat /usr/local/etc/xray/domain)
   users_file="/usr/local/etc/xray/users.db"
 
-  config_tls="/usr/local/etc/xray/config.json"
-  config_nonetls="/usr/local/etc/xray/vmess-nonetls.json"
-
-  _config="/usr/local/etc/xray/config.json"
+  xray_config="/usr/local/etc/xray/config.json"
 
   read -rp "Username: " -e username
   existing_user=$(jq -r --arg username "$username" '.vmess[] | select(.user == $username)' "$users_file")
@@ -244,11 +239,10 @@ function add_vmess() {
   fi
 
   # Set expiration days
-  read -p "Set expiration (days): " expiration_days
+  read -r -p "Set expiration (days): " expiration_days
   expiration_days=${expiration_days:-1}
 
-  # Set Bug
-  read -p "Hostname [google.com]: " hostname
+  read -r -p "Hostname [google.com]: " hostname
   hostname=${hostname:-"google.com"}
 
   echo -e "---------------------------------------------------"
@@ -259,47 +253,46 @@ function add_vmess() {
   echo -e "Press [ENTER] for Standard Config"
   echo -e "---------------------------------------------------"
   echo -e ""
-  read -p "Input your choice: " format
+  read -r -p "Input your choice: " format
 
   uuid=$(cat /proc/sys/kernel/random/uuid)
   expiration_date=$(date -d "$expiration_days days" +"%Y-%m-%d")
   today=$(date -d "0 days" +"%Y-%m-%d")
-  echo $(jq --arg username "$username" --arg uuid "$uuid" --arg expiration_date "$expiration_date" '.vmess += [{"user": $username, "uuid": $uuid, "expiry": $expiration_date}]' $users_file) > $users_file
-  # echo $(jq --arg username "$username" --arg uuid "$uuid" '.inbounds[0].settings.clients += [{"id": $uuid, "alterId": 0, "email": $username}]' $config_tls) > $config_tls
-  # echo $(jq --arg username "$username" --arg uuid "$uuid" '.inbounds[1].settings.clients += [{"id": $uuid, "alterId": 0, "email": $username}]' $config_nonetls) > $config_nonetls
 
-  echo $(jq --arg username "$username" --arg uuid "$uuid" '.inbounds[1].settings.clients += [{"id": $uuid, "alterId": 0, "email": $username}]' $_config) > $_config
-  echo $(jq --arg username "$username" --arg uuid "$uuid" '.inbounds[2].settings.clients += [{"id": $uuid, "alterId": 0, "email": $username}]' $_config) > $_config
+  echo "$(jq --arg username "$username" --arg uuid "$uuid" --arg expiration_date "$expiration_date" '.vmess += [{"user": $username, "uuid": $uuid, "expiry": $expiration_date}]' "$users_file")" > "$users_file"
+
+  echo "$(jq --arg username "$username" --arg uuid "$uuid" '.inbounds[1].settings.clients += [{"id": $uuid, "alterId": 0, "email": $username}]' "$xray_config")" > "$xray_config"
+  echo "$(jq --arg username "$username" --arg uuid "$uuid" '.inbounds[2].settings.clients += [{"id": $uuid, "alterId": 0, "email": $username}]' "$xray_config")" > "$xray_config"
+
   
   systemctl restart xray.service
-  systemctl restart xray@vmess-nonetls.service
   service cron restart
 
   # Check the chosen format
   case $format in
     1)
-      echo $(jq -n --arg username "$username" --arg hostname "$hostname" --arg domain "$domain" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$hostname,"port":"443","id":$uuid,"aid":"0","net":"ws","path":"wss://\($hostname)/vmess-tls","type":"none","host":$domain,"tls":"tls","sni":$hostname}') > /usr/local/etc/xray/$username-tls.json
-      echo $(jq -n --arg username "$username" --arg hostname "$hostname" --arg domain "$domain" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$hostname,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nonetls","type":"none","host":$domain,"tls":"none"}') > /usr/local/etc/xray/$username-nonetls.json
-      vmess_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-tls.json)"
-      vmess_nontls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-nonetls.json)"
+      jq -n --arg username "$username" --arg hostname "$hostname" --arg domain "$domain" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$hostname,"port":"443","id":$uuid,"aid":"0","net":"ws","path":"wss://\($hostname)/vmess-tls","type":"none","host":$domain,"tls":"tls","sni":$hostname}' > "/usr/local/etc/xray/$username-tls.json"
+      jq -n --arg username "$username" --arg hostname "$hostname" --arg domain "$domain" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$hostname,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nonetls","type":"none","host":$domain,"tls":"none"}' > "/usr/local/etc/xray/$username-nonetls.json"
+      vmess_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/"$username"-tls.json)"
+      vmess_nontls="vmess://$(base64 -w 0 /usr/local/etc/xray/"$username"-nonetls.json)"
       ;;
     2)
-      echo $(jq -n --arg username "$username" --arg domain "$domain" --arg hostname "$hostname" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$domain,"port":"443","id":$uuid,"aid":"0","net":"ws","path":"/vmess-tls","type":"none","host":$hostname,"tls":"tls","sni":$hostname}') > /usr/local/etc/xray/$username-tls.json
-      echo $(jq -n --arg username "$username" --arg domain "$domain" --arg hostname "$hostname" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$domain,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nonetls","type":"none","host":$hostname,"tls":"none"}') > /usr/local/etc/xray/$username-nonetls.json
-      vmess_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-tls.json)"
-      vmess_nontls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-nonetls.json)"
+      jq -n --arg username "$username" --arg domain "$domain" --arg hostname "$hostname" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$domain,"port":"443","id":$uuid,"aid":"0","net":"ws","path":"/vmess-tls","type":"none","host":$hostname,"tls":"tls","sni":$hostname}' > "/usr/local/etc/xray/$username-tls.json"
+      jq -n --arg username "$username" --arg domain "$domain" --arg hostname "$hostname" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$domain,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nonetls","type":"none","host":$hostname,"tls":"none"}' > "/usr/local/etc/xray/$username-nonetls.json"
+      vmess_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/"$username"-tls.json)"
+      vmess_nontls="vmess://$(base64 -w 0 /usr/local/etc/xray/"$username"-nonetls.json)"
       ;;
     3)
-      echo $(jq -n --arg username "$username" --arg hostname "$hostname" --arg domain "$domain" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$hostname,"port":"443","id":$uuid,"aid":"0","net":"ws","path":"/vmess-tls","type":"none","host":$domain,"tls":"tls","sni":$hostname}') > /usr/local/etc/xray/$username-tls.json
-      echo $(jq -n --arg username "$username" --arg hostname "$hostname" --arg domain "$domain" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$hostname,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nonetls","type":"none","host":$domain,"tls":"none"}') > /usr/local/etc/xray/$username-nonetls.json
-      vmess_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-tls.json)"
-      vmess_nontls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-nonetls.json)"
+      jq -n --arg username "$username" --arg hostname "$hostname" --arg domain "$domain" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$hostname,"port":"443","id":$uuid,"aid":"0","net":"ws","path":"/vmess-tls","type":"none","host":$domain,"tls":"tls","sni":$hostname}' > "/usr/local/etc/xray/$username-tls.json"
+      jq -n --arg username "$username" --arg hostname "$hostname" --arg domain "$domain" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$hostname,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nonetls","type":"none","host":$domain,"tls":"none"}' > "/usr/local/etc/xray/$username-nonetls.json"
+      vmess_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/"$username"-tls.json)"
+      vmess_nontls="vmess://$(base64 -w 0 /usr/local/etc/xray/"$username"-nonetls.json)"
       ;;
     *)
-      echo $(jq -n --arg username "$username" --arg domain "$domain" --arg hostname "$hostname" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$domain,"port":"443","id":$uuid,"aid":"0","net":"ws","path":"/vmess-tls","type":"none","host":$hostname,"tls":"tls","sni":$hostname}') > /usr/local/etc/xray/$username-tls.json
-      echo $(jq -n --arg username "$username" --arg domain "$domain" --arg hostname "$hostname" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$domain,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nonetls","type":"none","host":$hostname,"tls":"none"}') > /usr/local/etc/xray/$username-nonetls.json
-      vmess_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-tls.json)"
-      vmess_nontls="vmess://$(base64 -w 0 /usr/local/etc/xray/$username-nonetls.json)"
+      jq -n --arg username "$username" --arg domain "$domain" --arg hostname "$hostname" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$domain,"port":"443","id":$uuid,"aid":"0","net":"ws","path":"/vmess-tls","type":"none","host":$hostname,"tls":"tls","sni":$hostname}' > "/usr/local/etc/xray/$username-tls.json"
+      jq -n --arg username "$username" --arg domain "$domain" --arg hostname "$hostname" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$domain,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nonetls","type":"none","host":$hostname,"tls":"none"}' > "/usr/local/etc/xray/$username-nonetls.json"
+      vmess_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/"$username"-tls.json)"
+      vmess_nontls="vmess://$(base64 -w 0 /usr/local/etc/xray/"$username"-nonetls.json)"
       ;;
   esac
 
@@ -338,7 +331,7 @@ echo "4. Check Config"
 echo "5. Users Online"
 echo "0. Go Back to Menu"
 echo ""
-read -p "Select menu: " menu
+read -r -p "Select menu: " menu
 echo "---------------------------------------------------"
 
 case $menu in
