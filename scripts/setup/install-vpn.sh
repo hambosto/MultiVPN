@@ -123,8 +123,8 @@ configure_dns_resolution() {
 
     echo "Setting DNS to Cloudflare in /root/current-dns.txt..."
     echo "Cloudflare DNS" > /root/current-dns.txt
-    echo "nameserver 1.1.1.1" >> /etc/resolvconf/resolv.conf.d/head
-    echo "nameserver 1.0.0.1" >> /etc/resolvconf/resolv.conf.d/head
+    echo "nameserver 8.8.8.8" >> /etc/resolvconf/resolv.conf.d/head
+    echo "nameserver 8.8.4.4" >> /etc/resolvconf/resolv.conf.d/head
 
     resolvconf --enable-updates
 
