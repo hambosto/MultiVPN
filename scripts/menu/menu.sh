@@ -98,11 +98,6 @@ status() {
     echo "Nginx          : $(service_status nginx)"
     echo "Fail2ban       : $(service_status fail2ban)"
     echo "Xray           : $(service_status xray)"
-    # echo "Vmess Non TLS  : $(service_status xray@vmess-nonetls)"
-    # echo "Vless TLS      : $(service_status xray@vless-tls)"
-    # echo "Vless Non TLS  : $(service_status xray@vless-nonetls)"
-    # echo "Trojan TLS     : $(service_status xray@trojan-tls)"
-    # echo "Trojan Non TLS : $(service_status xray@trojan-nonetls)"
     echo "---------------------------------------------------------"
 
     read -n 1 -s -r -p "Press any key to go back to the menu"
@@ -121,11 +116,6 @@ restart() {
         cron
         nginx
         xray
-        # xray@vmess-nonetls
-        # xray@vless-tls
-        # xray@vless-nonetls
-        # xray@trojan-tls
-        # xray@trojan-nonetls
     )
 
     for service in "${services_to_restart[@]}"; do
@@ -140,22 +130,19 @@ restart() {
 # Define setup_dns function
 setup_dns() {
     clear
-    echo "Setting up $1"
+    echo "Setting up DNS..."
 
-    cat > /etc/systemd/resolved.conf << END
-[Resolve]
-DNS=$2
-Domains=~.
-ReadEtcHosts=yes
-END
+    # Configure resolv.conf with provided DNS servers
+    echo "" > /etc/resolvconf/resolv.conf.d/head
+    echo "nameserver $2" >> /etc/resolvconf/resolv.conf.d/head
+    echo "nameserver $3" >> /etc/resolvconf/resolv.conf.d/head
 
+    resolvconf --enable-updates
     systemctl restart resolvconf
-    systemctl restart systemd-resolved
-    systemctl restart NetworkManager
 
     echo "$1" > /root/current-dns.txt
 
-    echo "Setup Completed"
+    echo "DNS setup completed for $1"
     sleep 1.5
     clear
     change_dns
@@ -164,12 +151,18 @@ END
 # Define setup_custom_dns function
 setup_custom_dns() {
     clear
-    read -p "Please Insert Custom DNS (IPv4 Only): " custom
+    read -p "Please Insert First Custom DNS (IPv4 Only): " custom_first
 
-    if [ -z "$custom" ]; then
-        echo "Invalid input. Custom DNS not set."
+    if [ -z "$custom_first" ]; then
+        echo "Invalid input. First Custom DNS not set."
     else
-        setup_dns "Custom DNS" "$custom"
+        read -p "Please Insert Second Custom DNS (IPv4 Only): " custom_second
+
+        if [ -z "$custom_second" ]; then
+            echo "Invalid input. Second Custom DNS not set."
+        else
+            setup_dns "Custom DNS" "$custom_first" "$custom_second"
+        fi
     fi
 }
 
@@ -198,15 +191,15 @@ change_dns() {
     read -p "Select Option [1-11]: " dns
 
     case $dns in
-        1) setup_dns "Google DNS" "8.8.8.8 8.8.4.4" ;;
-        2) setup_dns "Cloudflare DNS" "1.1.1.1 1.0.0.1" ;;
-        3) setup_dns "Cisco OpenDNS" "208.67.222.222 208.67.222.220" ;;
-        4) setup_dns "Quad9 DNS" "9.9.9.9 149.112.112.112" ;;
-        5) setup_dns "Level 3 DNS" "4.2.2.1 4.2.2.2" ;;
-        6) setup_dns "Freenom World DNS" "80.80.80.80 80.80.81.81" ;;
-        7) setup_dns "Neustar DNS" "156.154.70.2 156.154.71.2" ;;
-        8) setup_dns "AdGuard DNS" "94.140.14.14 94.140.15.15" ;;
-        9) setup_dns "Control D DNS" "76.76.2.43 76.76.10.43" ;;
+        1) setup_dns "Google DNS" "8.8.8.8" "8.8.4.4" ;;
+        2) setup_dns "Cloudflare DNS" "1.1.1.1" "1.0.0.1" ;;
+        3) setup_dns "Cisco OpenDNS" "208.67.222.222" "208.67.222.220" ;;
+        4) setup_dns "Quad9 DNS" "9.9.9.9" "149.112.112.112" ;;
+        5) setup_dns "Level 3 DNS" "4.2.2.1" "4.2.2.2" ;;
+        6) setup_dns "Freenom World DNS" "80.80.80.80" "80.80.81.81" ;;
+        7) setup_dns "Neustar DNS" "156.154.70.2" "156.154.71.2" ;;
+        8) setup_dns "AdGuard DNS" "94.140.14.14" "94.140.15.15" ;;
+        9) setup_dns "Control D DNS" "76.76.2.43" "76.76.10.43" ;;
         10) setup_custom_dns ;;
         11) menu ;;
         *) echo "Invalid option. Please enter a number between 1 and 11." ;;
@@ -295,41 +288,24 @@ cores=$(awk -F: '/^processor/ {core++} END {print core}' /proc/cpuinfo)
 freq=$(awk -F'[ :]' '/cpu MHz/ {print $4;exit}' /proc/cpuinfo)
 ccache=$(awk -F: '/cache size/ {cache=$2} END {print cache}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//')
 
-tram=$(
-    LANG=C
-    free | awk '/Mem/ {print $2}'
-)
+tram=$(LANG=C free | awk '/Mem/ {print $2}')
 tram=$(calc_size "$tram")
-uram=$(
-    LANG=C
-    free | awk '/Mem/ {print $3}'
-)
+uram=$(LANG=C free | awk '/Mem/ {print $3}')
 uram=$(calc_size "$uram")
 
-in_kernel_no_swap_total_size=$(
-    LANG=C
-    df -t simfs -t ext2 -t ext3 -t ext4 -t btrfs -t xfs -t vfat -t ntfs --total 2>/dev/null | grep total | awk '{ print $2 }'
-)
+in_kernel_no_swap_total_size=$(LANG=C df -t simfs -t ext2 -t ext3 -t ext4 -t btrfs -t xfs -t vfat -t ntfs --total 2>/dev/null | grep total | awk '{ print $2 }')
 swap_total_size=$(free -k | grep Swap | awk '{print $2}')
 zfs_total_size=$(to_kibyte "$(calc_sum "$(zpool list -o size -Hp 2> /dev/null)")")
 disk_total_size=$(calc_size $((swap_total_size + in_kernel_no_swap_total_size + zfs_total_size)))
-in_kernel_no_swap_used_size=$(
-    LANG=C
-    df -t simfs -t ext2 -t ext3 -t ext4 -t btrfs -t xfs -t vfat -t ntfs --total 2>/dev/null | grep total | awk '{ print $3 }'
-)
+
+in_kernel_no_swap_used_size=$(LANG=C df -t simfs -t ext2 -t ext3 -t ext4 -t btrfs -t xfs -t vfat -t ntfs --total 2>/dev/null | grep total | awk '{ print $3 }')
 swap_used_size=$(free -k | grep Swap | awk '{print $3}')
 zfs_used_size=$(to_kibyte "$(calc_sum "$(zpool list -o allocated -Hp 2> /dev/null)")")
 disk_used_size=$(calc_size $((swap_used_size + in_kernel_no_swap_used_size + zfs_used_size)))
 
-swap=$(
-    LANG=C
-    free | awk '/Swap/ {print $2}'
-)
+swap=$(LANG=C free | awk '/Swap/ {print $2}')
 swap=$(calc_size "$swap")
-uswap=$(
-    LANG=C
-    free | awk '/Swap/ {print $3}'
-)
+uswap=$(LANG=C free | awk '/Swap/ {print $3}')
 uswap=$(calc_size "$uswap")
 
 opsy=$(get_opsy)
@@ -343,16 +319,11 @@ kern=$(uname -r)
 
 up=$(awk '{a=$1/86400;b=($1%86400)/3600;c=($1%3600)/60} {printf("%d days, %d hour %d min\n",a,b,c)}' /proc/uptime)
 if _exists "w"; then
-    load=$(
-        LANG=C
-        w | head -1 | awk -F'load average:' '{print $2}' | sed 's/^[ \t]*//;s/[ \t]*$//'
-    )
+    load=$(LANG=C w | head -1 | awk -F'load average:' '{print $2}' | sed 's/^[ \t]*//;s/[ \t]*$//')
 elif _exists "uptime"; then
-    load=$(
-        LANG=C
-        uptime | head -1 | awk -F'load average:' '{print $2}' | sed 's/^[ \t]*//;s/[ \t]*$//'
-    )
+    load=$(LANG=C uptime | head -1 | awk -F'load average:' '{print $2}' | sed 's/^[ \t]*//;s/[ \t]*$//')
 fi
+
 
 
 date_today=$(date -R | cut -d " " -f -4)
@@ -483,7 +454,7 @@ case $menu in
         ;;
     8)
         clear
-        speedtest
+        speedtest-cli
         ;;
     9)
         clear
