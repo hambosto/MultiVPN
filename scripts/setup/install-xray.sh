@@ -67,7 +67,7 @@ generate_and_set_uuid() {
     echo $(jq --arg uuid "$uuid" '.inbounds[6].settings.clients[0].password = $uuid' "$xray_config_dir/config.json") > "$xray_config_dir/config.json"
 
     echo "Creating users database for XRAY..."
-    jq -n '{"vmess": [], "vless": [], "trojan": [], "trojan_tcp": [], "trojan_go": []}' > "$xray_config_dir/users.db"
+    jq -n '{"vmess": [], "vless": [], "trojan": []}' > "$xray_config_dir/users.db"
 
     echo "UUID generation and Xray configuration completed successfully."
 }
