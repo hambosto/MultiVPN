@@ -92,7 +92,8 @@ restart_service() {
 
 status() {
     clear
-    echo "Services Status:"
+    echo "---------------------------------------------------------"
+    echo "                   Services Status                       "
     echo "---------------------------------------------------------"
     echo "Cron           : $(service_status cron)"
     echo "Nginx          : $(service_status nginx)"
@@ -168,9 +169,10 @@ setup_custom_dns() {
 
 change_dns() {
     clear
-
-    echo "DNS Setting"
-    echo "------------"
+    
+    echo "---------------------------------------------------"
+    echo "                     DNS Setting                   "
+    echo "---------------------------------------------------"
 
     current_dns=$(cat /root/current-dns.txt 2>/dev/null)
 
@@ -208,8 +210,9 @@ change_dns() {
 
 change_domain() {
     clear
-    echo "Change Domain"
-    echo "----------------"
+    echo "---------------------------------------------------------"
+    echo "                    Change Domain                        "
+    echo "---------------------------------------------------------"
 
     read -p "New Domain: " new_domain
     echo
@@ -230,8 +233,9 @@ change_domain() {
 
 renew_ssl() {
     clear
-    echo "Renew SSL"
-    echo "----------------"
+    echo "---------------------------------------------------"
+    echo "                    Renew SSL                     "
+    echo "---------------------------------------------------"
 
     # Stop the process using port 80, if any
     process=$(lsof -i:80 | awk 'NR==2 {print $1}')
@@ -266,6 +270,74 @@ renew_ssl() {
     read -n 1 -s -r -p "Press any key to go back to the menu"
     menu
 }
+
+users_online() {
+    clear
+
+    users_file="/usr/local/etc/xray/users.db"
+    access_log="/var/log/xray/access.log"
+
+    # Extract user accounts from vless, vmess, and trojan arrays
+    mapfile -t vless_accounts < <(jq -r '.vless[].user' "$users_file" 2>/dev/null)
+    mapfile -t vmess_accounts < <(jq -r '.vmess[].user' "$users_file" 2>/dev/null)
+    mapfile -t trojan_accounts < <(jq -r '.trojan[].user' "$users_file" 2>/dev/null)
+
+    # Combine all account arrays and remove duplicates
+    all_accounts=("${vless_accounts[@]}" "${vmess_accounts[@]}" "${trojan_accounts[@]}")
+    all_accounts=($(printf "%s\n" "${all_accounts[@]}" | sort -u))
+
+    # Check if there are any user accounts
+    if [[ ${#all_accounts[@]} -eq 0 ]]; then
+        echo "No user accounts found in the configuration file."
+        echo "---------------------------------------------------"
+        echo ""
+        read -n 1 -s -r -p "Press any key to go back to the menu"
+        menu
+        return
+    fi
+
+    echo "---------------------------------------------------"
+    echo "                    All Users                      "
+    echo "---------------------------------------------------"
+
+    user_count=1
+    for current_account in "${all_accounts[@]}"; do
+        if [[ -z "$current_account" ]]; then
+            continue
+        fi
+
+        user_ips=$(grep -w "$current_account" "$access_log" | awk '{print $3}' | sed 's/tcp://g' | cut -d ":" -f 1 | sort -u)
+        user_activity=""
+
+        if [[ -z "$user_ips" ]]; then
+            user_status="Offline"
+            user_activity="No Activity"
+            user_ips="N/A"
+        else
+            if [[ " ${vless_accounts[@]} " =~ " ${current_account} " ]]; then
+                user_activity="Using VLESS"
+            elif [[ " ${vmess_accounts[@]} " =~ " ${current_account} " ]]; then
+                user_activity="Using VMESS"
+            elif [[ " ${trojan_accounts[@]} " =~ " ${current_account} " ]]; then
+                user_activity="Using Trojan"
+            fi
+            user_status="Online"
+        fi
+
+        echo "[$user_count] $current_account - $user_status - $user_activity - $user_ips"
+
+        ((user_count++))
+    done
+
+    echo "---------------------------------------------------"
+    echo ""
+    read -n 1 -s -r -p "Press any key to go back to the menu"
+    menu
+}
+
+
+
+
 
 # Function to get service status
 get_status() {
@@ -335,7 +407,6 @@ today_total="$(vnstat | grep today | awk 'NR==1{print $8" "substr($9, 1, 3)}')"
 month_download="$(vnstat -m | grep $(date +%G-%m) | awk '{print $2" "substr ($3, 1 ,3)}')"
 month_upload="$(vnstat -m | grep $(date +%G-%m) | awk '{print $5" "substr ($6, 1 ,3)}')"
 month_total="$(vnstat -m | grep $(date +%G-%m) | awk '{print $8" "substr ($9, 1 ,3)}')"
-
 
 org="$(wget -q -T10 -O- ipinfo.io/org)"
 city="$(wget -q -T10 -O- ipinfo.io/city)"
@@ -465,7 +536,9 @@ case $menu in
         status
         ;;
     11)
-        clear;;
+        clear
+        users_online
+        ;;
     12)
         clear
         exit
