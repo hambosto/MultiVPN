@@ -335,10 +335,6 @@ users_online() {
     menu
 }
 
-
-
-
-
 # Function to get service status
 get_status() {
     service_name="$1"
