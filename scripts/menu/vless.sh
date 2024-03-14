@@ -5,45 +5,6 @@ display_banner() {
     curl -sS https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/banner
 }
 
-function check_vless() {
-    clear
-
-    users_file="/usr/local/etc/xray/users.db"
-    access_log="/var/log/xray/access2.log"
-
-    vless_accounts=($(jq -r '.vless[].user' "$users_file" | sort -u))
-
-    if [[ ${#vless_accounts[@]} -eq 0 ]]; then
-        echo "No vless accounts found in the configuration file."
-        echo "---------------------------------------------------"
-        echo ""
-        read -n 1 -s -r -p "Press any key to go back to the menu"
-        menu-vless
-    fi
-
-    echo "VLESS WEBSOCKET USERS"
-    echo "---------------------------------------------------"
-
-    for account in "${vless_accounts[@]}"; do
-        if [[ -z "$account" ]]; then
-            continue
-        fi
-
-        user_ips=$(grep -w "$account" "$access_log" | cut -d " " -f 3 | sed 's/tcp://g' | cut -d ":" -f 1 | sort -u)
-
-        if [[ -z "$user_ips" ]]; then
-            echo "User: $account - Offline"
-        else
-            echo "User: $account - IP Address: $user_ips"
-        fi
-    done
-
-    echo "---------------------------------------------------"
-    echo ""
-    read -n 1 -s -r -p "Press any key to go back to the menu"
-    menu-vless
-}
-
 function renew_vless() {
     clear
 
@@ -56,7 +17,7 @@ function renew_vless() {
         menu-vless
     fi
 
-    echo "vless WEBSOCKET USERS"
+    echo "VLESS WEBSOCKET USERS"
     echo "---------------------------------------------------"
 
     jq -r '.vless | to_entries[] | "\(.key + 1) - \(.value.user) \(.value.expiry)"' "$users_file" | while read -r line; do echo "$line"; done
@@ -83,10 +44,9 @@ function renew_vless() {
     new_expiration=$(((expiration_timestamp - current_timestamp) / 86400 + expiration_days))
     new_exp_date=$(date -d "@$((current_timestamp + new_expiration * 86400))" +"%Y-%m-%d")
 
-    echo "$(jq --argjson index "$selected_index" --arg new_exp_date "$new_exp_date" '.vless[$index].expiry = $new_exp_date' "$users_file")" >"$users_file"
+    echo "$(jq --argjson index "$selected_index" --arg new_exp_date "$new_exp_date" '.vless[$index].expiry = $new_exp_date' "$users_file")" > "$users_file"
 
-    systemctl restart xray@vless-tls.service
-    systemctl restart xray@vless-nontls.service
+    systemctl restart xray.service
     service cron restart
     clear
 
@@ -105,8 +65,7 @@ function delete_vless() {
     clear
 
     users_file="/usr/local/etc/xray/users.db"
-    config_tls="/usr/local/etc/xray/vless-tls.json"]
-    config_nonetls="/usr/local/etc/xray/vless-nonetls.json"
+    config_xray="/usr/local/etc/xray/config.json"
 
     num_clients=$(jq -r '.vless | length' "$users_file")
 
@@ -138,12 +97,12 @@ function delete_vless() {
     echo "$(jq --argjson index "$selected_index" '.vless |= del(.[$index])' "$users_file")" >"$users_file"
 
     # Delete user from config.json
-    echo "$(jq --arg username "$username" '.inbounds[0].settings.clients = (.inbounds[0].settings.clients | map(select(.email != $username)))' "$config_tls")" >"$config_tls"
-    echo "$(jq --arg username "$username" '.inbounds[1].settings.clients = (.inbounds[1].settings.clients | map(select(.email != $username)))' "$config_nonetls")" >"$config_nonetls"
+    echo "$(jq --arg username "$username" '.inbounds[3].settings.clients = (.inbounds[3].settings.clients | map(select(.email != $username)))' "$config_xray")" >"$config_xray"
+    echo "$(jq --arg username "$username" '.inbounds[4].settings.clients = (.inbounds[4].settings.clients | map(select(.email != $username)))' "$config_xray")" >"$config_xray"
 
     # Uncomment the lines below if you want to restart services and delete files
-    systemctl restart xray@vless-tls.service
-    systemctl restart xray@vless-nontls.service
+    systemctl restart xray.service
+    systemctl restart cron
 
     clear
 
@@ -178,7 +137,7 @@ function user_vless() {
 
     read -rp "Select a client: " client_number
 
-    if [ -z $client_number ]; then
+    if [ -z "$client_number" ]; then
         clear
         menu-vless
     fi
@@ -225,8 +184,7 @@ function add_vless() {
     domain=$(cat /usr/local/etc/xray/domain)
     users_file="/usr/local/etc/xray/users.db"
 
-    config_tls="/usr/local/etc/xray/vless-tls.json"
-    config_nonetls="/usr/local/etc/xray/vless-nonetls.json"
+    config_xray="/usr/local/etc/xray/config.json"
 
     read -rp "Username: " -e username
     existing_user=$(jq -r --arg username "$username" '.vless[] | select(.user == $username)' "$users_file")
@@ -238,33 +196,33 @@ function add_vless() {
     fi
 
     # Set expiration days
-    read -p "Set expiration (days): " expiration_days
+    read -r -p "Set expiration (days): " expiration_days
     expiration_days=${expiration_days:-1}
 
     # Set Bug
-    read -p "Hostname [google.com]: " hostname
-    hostname=${hostname:-"google.com"}
+    read -r -p "Destination Host [google.com]: " destination_host
+    destination_host=${destination_host:-"google.com"}
 
     echo -e "---------------------------------------------------"
-    echo -e "1) wss://bug/path"
-    echo -e "2) Host & SNI"
-    echo -e "3) Reverse Proxy"
+    echo -e "[1] wss://destination_host/path"
+    echo -e "[2] Host & SNI"
+    echo -e "[3] Reverse Proxy"
     echo -e ""
     echo -e "Press [ENTER] for Standard Config"
     echo -e "---------------------------------------------------"
     echo -e ""
-    read -p "Input your choice: " format
+    read -r -p "Input your choice: " format
 
     uuid=$(cat /proc/sys/kernel/random/uuid)
     expiration_date=$(date -d "$expiration_days days" +"%Y-%m-%d")
     today=$(date -d "0 days" +"%Y-%m-%d")
 
-    echo $(jq --arg username "$username" --arg uuid "$uuid" --arg expiration_date "$expiration_date" '.vless += [{"user": $username, "uuid": $uuid, "expiry": $expiration_date}]' $users_file) > $users_file
-    echo $(jq --arg username "$username" --arg uuid "$uuid" '.inbounds[0].settings.clients += [{"id": $uuid, "alterId": 0, "email": $username}]' $config_tls) > $config_tls
-    echo $(jq --arg username "$username" --arg uuid "$uuid" '.inbounds[1].settings.clients += [{"id": $uuid, "alterId": 0, "email": $username}]' $config_nonetls) > $config_nonetls
+    echo $(jq --arg username "$username" --arg uuid "$uuid" --arg expiration_date "$expiration_date" '.vless += [{"user": $username, "uuid": $uuid, "expiry": $expiration_date}]' "$users_file") > $users_file
+    
+    echo $(jq --arg username "$username" --arg uuid "$uuid" '.inbounds[3].settings.clients += [{"id": $uuid, "alterId": 0, "email": $username}]' "$config_xray") > $config_xray
+    echo $(jq --arg username "$username" --arg uuid "$uuid" '.inbounds[4].settings.clients += [{"id": $uuid, "alterId": 0, "email": $username}]' "$config_xray") > $config_xray
 
     systemctl restart xray.service
-    systemctl restart xray@vless-nonetls.service
     service cron restart
 
     tls_port="443"
@@ -273,20 +231,20 @@ function add_vless() {
     # Check the chosen format
     case $format in
     1)
-        vless_tls="vless://${uuid}@${hostname}:${tls_port}?type=ws&encryption=none&security=tls&host=${domain}&path=wss://${hostname}/vless-tls&allowInsecure=1&sni=${hostname}#${username}"
-        vless_nonetls="vless://${uuid}@${domain}:${none_tls_port}?type=ws&encryption=none&security=none&host=${hostname}&path=/vless-nonetls#${username}"
+        vless_tls="vless://${uuid}@${destination_host}:${tls_port}?type=ws&encryption=none&security=tls&host=${domain}&path=wss://${destination_host}/vless-tls&allowInsecure=1&sni=${destination_host}#${username}"
+        vless_nonetls="vless://${uuid}@${domain}:${none_tls_port}?type=ws&encryption=none&security=none&host=${destination_host}&path=/vless-nonetls#${username}"
         ;;
     2)
-        vless_tls="vless://${uuid}@${domain}:${tls_port}?type=ws&encryption=none&security=tls&host=${hostname}&path=/vless-tls&allowInsecure=1&sni=${hostname}#${username}"
-        vless_nonetls="vless://${uuid}@${domain}:${none_tls_port}?type=ws&encryption=none&security=none&host=${hostname}&path=/vless-nonetls#${username}"
+        vless_tls="vless://${uuid}@${domain}:${tls_port}?type=ws&encryption=none&security=tls&host=${destination_host}&path=/vless-tls&allowInsecure=1&sni=${destination_host}#${username}"
+        vless_nonetls="vless://${uuid}@${domain}:${none_tls_port}?type=ws&encryption=none&security=none&host=${destination_host}&path=/vless-nonetls#${username}"
         ;;
     3)
-        vless_tls="vless://${uuid}@${hostname}:${tls_port}?type=ws&encryption=none&security=tls&host=${domain}&path=/vless-tls&allowInsecure=1&sni=${hostname}#${username}"
-        vless_nonetls="vless://${uuid}@${hostname}:${none_tls_port}?type=ws&encryption=none&security=none&host=${domain}&path=/vless-nonetls#${username}"
+        vless_tls="vless://${uuid}@${destination_host}:${tls_port}?type=ws&encryption=none&security=tls&host=${domain}&path=/vless-tls&allowInsecure=1&sni=${destination_host}#${username}"
+        vless_nonetls="vless://${uuid}@${destination_host}:${none_tls_port}?type=ws&encryption=none&security=none&host=${domain}&path=/vless-nonetls#${username}"
         ;;
     *)
-        vless_tls="vless://${uuid}@${domain}:${tls_port}?type=ws&encryption=none&security=tls&host=${hostname}&path=/vlessWsTLS&allowInsecure=1&sni=${hostname}#${username}"
-        vless_nonetls="vless://${uuid}@${domain}:${none_tls_port}?type=ws&encryption=none&security=none&host=${hostname}&path=/vless-nonetls#${username}"
+        vless_tls="vless://${uuid}@${domain}:${tls_port}?type=ws&encryption=none&security=tls&host=${destination_host}&path=/vless-tls&allowInsecure=1&sni=${destination_host}#${username}"
+        vless_nonetls="vless://${uuid}@${domain}:${none_tls_port}?type=ws&encryption=none&security=none&host=${destination_host}&path=/vless-nonetls#${username}"
         ;;
     esac
 
@@ -316,14 +274,13 @@ function add_vless() {
 
 display_banner
 echo "---------------------------------------------------"
-echo "1. Create VLess"
-echo "2. Delete VLess"
-echo "3. Renew VLess"
+echo "1. Create VLESS"
+echo "2. Delete VLESS"
+echo "3. Renew VLESS"
 echo "4. Check Config"
-echo "5. Users Online"
 echo "0. Go Back"
 echo ""
-read -p "Select menu: " menu
+read -r -p "Select menu: " menu
 echo "---------------------------------------------------"
 
 case $menu in
@@ -343,10 +300,6 @@ case $menu in
     clear
     user_vless
     ;;
-5)
-    clear
-    check_vless
-    ;;
 0)
     clear
     menu
@@ -356,4 +309,3 @@ case $menu in
     menu-vless
     ;;
 esac
-
