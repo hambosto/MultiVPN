@@ -137,7 +137,7 @@ configure_dns_resolution() {
 # Function to configure cron jobs
 configure_cron_jobs() {
     echo "0 6 * * * root reboot" >> /etc/crontab
-    echo "0 0 * * * root root /usr/local/sbin/expiry" >> /etc/crontab
+    echo "0 0 * * * root /usr/local/sbin/expiry" >> /etc/crontab
     echo "*/2 * * * * root /usr/local/sbin/cleaner" >> /etc/crontab
 
     echo "Restarting cron service..."
