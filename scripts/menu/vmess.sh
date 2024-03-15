@@ -4,46 +4,6 @@ display_banner() {
     curl -sS https://raw.githubusercontent.com/hambosto/MultiVPN/main/config/banner
 }
 
-function check_vmess() {
-    clear
-
-    users_file="/usr/local/etc/xray/users.db"
-    access_log="/var/log/xray/access.log"
-
-    vmess_accounts=( $(jq -r '.vmess[].user' "$users_file" | sort -u) )
-
-    if [[ ${#vmess_accounts[@]} -eq 0 ]]; then
-        echo "No VMESS accounts found in the configuration file."
-        echo "---------------------------------------------------"
-        echo ""
-        read -n 1 -s -r -p "Press any key to go back to the menu"
-        menu_vmess
-    fi
-
-    echo "VMESS WEBSOCKET USERS"
-    echo "---------------------------------------------------"
-
-    for account in "${vmess_accounts[@]}"
-    do
-        if [[ -z "$account" ]]; then
-            continue
-        fi
-
-        user_ips=$(grep -w "$account" "$access_log" | cut -d " " -f 3 | sed 's/tcp://g' | cut -d ":" -f 1 | sort -u)
-
-        if [[ -z "$user_ips" ]]; then
-            echo "User: $account - Offline"
-        else
-            echo "User: $account - IP Address: $user_ips"
-        fi
-    done
-
-    echo "---------------------------------------------------"
-    echo ""
-    read -n 1 -s -r -p "Press any key to go back to the menu"
-    menu-vmess
-}
-
 function renew_vmess() {
     clear
 
@@ -193,8 +153,8 @@ function user_vmess() {
     none_tls_port="80"
     domain=$(cat /usr/local/etc/xray/domain)
     today=$(date -d "0 days" +"%Y-%m-%d")
-    link_ws_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/"$username"-tls.json)"
-    link_ws_none_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/"$username"-nonetls.json)"
+    link_ws_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/vmess-"$username"-tls.json)"
+    link_ws_none_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/vmess-"$username"-nonetls.json)"
 
     # clear
     echo "VMESS WEBSOCKET"
@@ -271,28 +231,28 @@ function add_vmess() {
   # Check the chosen format
   case $format in
     1)
-      jq -n --arg username "$username" --arg destination_host "$destination_host" --arg domain "$domain" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$destination_host,"port":"443","id":$uuid,"aid":"0","net":"ws","path":"wss://\($destination_host)/vmess-tls","type":"none","host":$domain,"tls":"tls","sni":$destination_host}' > "/usr/local/etc/xray/$username-tls.json"
-      jq -n --arg username "$username" --arg destination_host "$destination_host" --arg domain "$domain" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$destination_host,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nonetls","type":"none","host":$domain,"tls":"none"}' > "/usr/local/etc/xray/$username-nonetls.json"
+      jq -n --arg username "$username" --arg destination_host "$destination_host" --arg domain "$domain" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$destination_host,"port":"443","id":$uuid,"aid":"0","net":"ws","path":"wss://\($destination_host)/vmess-tls","type":"none","host":$domain,"tls":"tls","sni":$destination_host}' > "/usr/local/etc/xray/vmess-$username-tls.json"
+      jq -n --arg username "$username" --arg destination_host "$destination_host" --arg domain "$domain" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$destination_host,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nonetls","type":"none","host":$domain,"tls":"none"}' > "/usr/local/etc/xray/vmess-$username-nonetls.json"
       vmess_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/"$username"-tls.json)"
       vmess_nontls="vmess://$(base64 -w 0 /usr/local/etc/xray/"$username"-nonetls.json)"
       ;;
     2)
-      jq -n --arg username "$username" --arg domain "$domain" --arg destination_host "$destination_host" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$domain,"port":"443","id":$uuid,"aid":"0","net":"ws","path":"/vmess-tls","type":"none","host":$destination_host,"tls":"tls","sni":$destination_host}' > "/usr/local/etc/xray/$username-tls.json"
-      jq -n --arg username "$username" --arg domain "$domain" --arg destination_host "$destination_host" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$domain,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nonetls","type":"none","host":$destination_host,"tls":"none"}' > "/usr/local/etc/xray/$username-nonetls.json"
+      jq -n --arg username "$username" --arg domain "$domain" --arg destination_host "$destination_host" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$domain,"port":"443","id":$uuid,"aid":"0","net":"ws","path":"/vmess-tls","type":"none","host":$destination_host,"tls":"tls","sni":$destination_host}' > "/usr/local/etc/xray/vmess-$username-tls.json"
+      jq -n --arg username "$username" --arg domain "$domain" --arg destination_host "$destination_host" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$domain,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nonetls","type":"none","host":$destination_host,"tls":"none"}' > "/usr/local/etc/xray/vmess-$username-nonetls.json"
       vmess_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/"$username"-tls.json)"
       vmess_nontls="vmess://$(base64 -w 0 /usr/local/etc/xray/"$username"-nonetls.json)"
       ;;
     3)
-      jq -n --arg username "$username" --arg destination_host "$destination_host" --arg domain "$domain" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$destination_host,"port":"443","id":$uuid,"aid":"0","net":"ws","path":"/vmess-tls","type":"none","host":$domain,"tls":"tls","sni":$destination_host}' > "/usr/local/etc/xray/$username-tls.json"
-      jq -n --arg username "$username" --arg destination_host "$destination_host" --arg domain "$domain" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$destination_host,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nonetls","type":"none","host":$domain,"tls":"none"}' > "/usr/local/etc/xray/$username-nonetls.json"
+      jq -n --arg username "$username" --arg destination_host "$destination_host" --arg domain "$domain" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$destination_host,"port":"443","id":$uuid,"aid":"0","net":"ws","path":"/vmess-tls","type":"none","host":$domain,"tls":"tls","sni":$destination_host}' > "/usr/local/etc/xray/vmess-$username-tls.json"
+      jq -n --arg username "$username" --arg destination_host "$destination_host" --arg domain "$domain" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$destination_host,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nonetls","type":"none","host":$domain,"tls":"none"}' > "/usr/local/etc/xray/vmess-$username-nonetls.json"
       vmess_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/"$username"-tls.json)"
       vmess_nontls="vmess://$(base64 -w 0 /usr/local/etc/xray/"$username"-nonetls.json)"
       ;;
     *)
-      jq -n --arg username "$username" --arg domain "$domain" --arg destination_host "$destination_host" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$domain,"port":"443","id":$uuid,"aid":"0","net":"ws","path":"/vmess-tls","type":"none","host":$destination_host,"tls":"tls","sni":$destination_host}' > "/usr/local/etc/xray/$username-tls.json"
-      jq -n --arg username "$username" --arg domain "$domain" --arg destination_host "$destination_host" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$domain,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nonetls","type":"none","host":$destination_host,"tls":"none"}' > "/usr/local/etc/xray/$username-nonetls.json"
-      vmess_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/"$username"-tls.json)"
-      vmess_nontls="vmess://$(base64 -w 0 /usr/local/etc/xray/"$username"-nonetls.json)"
+      jq -n --arg username "$username" --arg domain "$domain" --arg destination_host "$destination_host" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$domain,"port":"443","id":$uuid,"aid":"0","net":"ws","path":"/vmess-tls","type":"none","host":$destination_host,"tls":"tls","sni":$destination_host}' > "/usr/local/etc/xray/vmess-$username-tls.json"
+      jq -n --arg username "$username" --arg domain "$domain" --arg destination_host "$destination_host" --arg uuid "$uuid" '{"v":"2","ps":$username,"add":$domain,"port":"80","id":$uuid,"aid":"0","net":"ws","path":"/vmess-nonetls","type":"none","host":$destination_host,"tls":"none"}' > "/usr/local/etc/xray/vmess-$username-nonetls.json"
+      vmess_tls="vmess://$(base64 -w 0 /usr/local/etc/xray/vmess-"$username"-tls.json)"
+      vmess_nontls="vmess://$(base64 -w 0 /usr/local/etc/xray/vmess-"$username"-nonetls.json)"
       ;;
   esac
 
@@ -329,7 +289,6 @@ echo "1. Create Vmess"
 echo "2. Delete Vmess"
 echo "3. Renew Vmess"
 echo "4. Check Config"
-echo "5. Users Online"
 echo "0. Go Back to Menu"
 echo ""
 read -r -p "Select menu: " menu
@@ -340,6 +299,5 @@ case $menu in
     2) clear ; delete_vmess ;;
     3) clear ; renew_vmess ;;
     4) clear ; user_vmess ;;
-    5) clear ; check_vmess ;;
     *) clear ; menu ;;
 esac
