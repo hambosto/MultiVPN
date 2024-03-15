@@ -27,7 +27,7 @@ update_and_upgrade() {
     apt dist-upgrade -y
 
     # Install necessary packages
-    apt install netfilter-persistent apt-transport-https cmake build-essential cron -y
+    apt install netfilter-persistent apt-transport-https cmake build-essential cron bzip2 gzip coreutils -y
 
     # Set timezone
     ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
