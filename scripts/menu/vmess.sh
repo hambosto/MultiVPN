@@ -205,10 +205,10 @@ function add_vmess() {
   read -r -p "Destination Host [google.com]: " destination_host
   destination_host=${destination_host:-"google.com"}
 
-  echo -e "---------------------------------------------------"
-  echo -e "1) wss://destination_host/path"
-  echo -e "2) Host & SNI"
-  echo -e "3) Reverse Proxy"
+  echo -e "---------------------------------------------------"\
+  echo "[1] wss://destination_host/path"
+  echo "[2] Host & SNI"
+  echo "[3] Reverse Proxy"
   echo -e ""
   echo -e "Press [ENTER] for Standard Config"
   echo -e "---------------------------------------------------"
