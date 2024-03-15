@@ -94,11 +94,11 @@ function delete_vless() {
     expiry_date=$(jq -r --argjson index "$selected_index" '.vless[$index].expiry' "$users_file")
 
     # Delete user from config.db
-    echo "$(jq --argjson index "$selected_index" '.vless |= del(.[$index])' "$users_file")" >"$users_file"
+    echo "$(jq --argjson index "$selected_index" '.vless |= del(.[$index])' "$users_file")" > "$users_file"
 
     # Delete user from config.json
-    echo "$(jq --arg username "$username" '.inbounds[3].settings.clients = (.inbounds[3].settings.clients | map(select(.email != $username)))' "$config_xray")" >"$config_xray"
-    echo "$(jq --arg username "$username" '.inbounds[4].settings.clients = (.inbounds[4].settings.clients | map(select(.email != $username)))' "$config_xray")" >"$config_xray"
+    echo "$(jq --arg username "$username" '.inbounds[3].settings.clients = (.inbounds[3].settings.clients | map(select(.email != $username)))' "$config_xray")" > "$config_xray"
+    echo "$(jq --arg username "$username" '.inbounds[4].settings.clients = (.inbounds[4].settings.clients | map(select(.email != $username)))' "$config_xray")" > "$config_xray"
 
     # Uncomment the lines below if you want to restart services and delete files
     systemctl restart xray.service
@@ -152,8 +152,8 @@ function user_vless() {
     domain=$(cat /usr/local/etc/xray/domain)
     today=$(date -d "0 days" +"%Y-%m-%d")
 
-    vless_ws_tls="vless://${client_uuid}@${domain}:$tls_port?type=ws&encryption=none&security=tls&host=${domain}&path=/vless-tls&allowInsecure=1&sni=bug.com#${username}"
-    vless_ws_non_tls="vless://${client_uuid}@${domain}:$none_tls_port?type=ws&encryption=none&security=none&host=${domain}&path=/vless-nontls#${username}"
+    vless_ws_tls="vless://${client_uuid}@${domain}:$tls_port?type=ws&encryption=none&security=tls&host=${domain}&path=/vless-tls&allowInsecure=1&sni=destination_host.com#${username}"
+    vless_ws_non_tls="vless://${client_uuid}@${domain}:$none_tls_port?type=ws&encryption=none&security=none&host=${domain}&path=/vless-nonetls#${username}"
 
     clear
     echo "VLESS WEBSOCKET"
